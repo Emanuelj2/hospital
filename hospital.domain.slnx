@@ -1,0 +1,7 @@
+<Solution>
+  <Project Path="hoapital.ui/hoapital.ui.csproj" Id="a67d66b5-ff87-4c9e-81b7-2f0e7a47456a" />
+  <Project Path="hospital.api/hospital.api.csproj" Id="e8cc71ab-ad8d-40bc-962f-84c2117eb8d0" />
+  <Project Path="hospital.application/hospital.application.csproj" Id="beafce26-b711-4e38-8599-9e78755e7ba4" />
+  <Project Path="hospital.domain/hospital.domain.csproj" />
+  <Project Path="hospital.infrastructure/hospital.infrastructure.csproj" Id="2f22ee66-e8e1-4a01-a751-dcb25773db52" />
+</Solution>
