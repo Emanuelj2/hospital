@@ -4,4 +4,5 @@
   <Project Path="hospital.application/hospital.application.csproj" Id="beafce26-b711-4e38-8599-9e78755e7ba4" />
   <Project Path="hospital.domain/hospital.domain.csproj" />
   <Project Path="hospital.infrastructure/hospital.infrastructure.csproj" Id="2f22ee66-e8e1-4a01-a751-dcb25773db52" />
+  <Project Path="hospital.test/hospital.test.csproj" Id="225b2674-6899-44ec-95c7-150a3e2e061c" />
 </Solution>
