@@ -1,4 +1,5 @@
-﻿using hospital.domain.People;
+﻿using hospital.domain.Enums;
+using hospital.domain.People;
 using System;
 using System.Collections.Generic;
 using System.Text;

@@ -1,4 +1,6 @@
-﻿using hospital.domain.People;
+﻿using hospital.domain.Enums;
+using hospital.domain.People;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -20,7 +22,10 @@ namespace hospital.domain.Billing.entity
         public string InsuranceProvider { get; set; } = string.Empty;
         public string PolicyNumber { get; set; } = string.Empty;
 
+        [Precision(10, 2)]
         public decimal ClaimAmount { get; set; }
+
+        [Precision(10, 2)]
         public decimal? ApprovedAmount { get; set; }
 
         public DateTime SubmissionDate { get; set; }

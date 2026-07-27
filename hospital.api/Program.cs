@@ -1,3 +1,6 @@
+using Microsoft.EntityFrameworkCore;
+using hospital.infrastructure.Data;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -8,8 +11,11 @@ builder.Services.AddOpenApi();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
+//connection string
+builder.Services.AddDbContext<HospitalDbContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-
+//add cors
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("allow-ui", policy =>

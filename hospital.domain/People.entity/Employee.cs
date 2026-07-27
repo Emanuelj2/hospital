@@ -1,5 +1,6 @@
 ﻿using hospital.domain.Enums;
 using hospital.domain.Organization.entity;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Reflection.Metadata;
@@ -33,6 +34,7 @@ namespace hospital.domain.People
 
         public string StateLicenceNumber { get; set; } = string.Empty;
 
+        [Precision(10, 2)]
         public decimal Salary { get; set; }
         public DateTime HireDate { get; set; }
         

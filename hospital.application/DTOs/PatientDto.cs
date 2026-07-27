@@ -1,21 +1,16 @@
 ﻿using hospital.domain.Enums;
-using hospital.domain.Organization.entity;
 using System;
 using System.Collections.Generic;
-using System.Linq.Expressions;
-using System.Reflection.Metadata;
 using System.Text;
 
-namespace hospital.domain.People
+namespace hospital.application.DTOs
 {
-    public class Patient
+    public class PatientDto
     {
         public int Id { get; set; }
 
-
-        //personal information
         public string FirstName { get; set; } = string.Empty;
-        public string MiddelName { get; set; } = string.Empty;
+        public string MiddleName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
         public string Gender { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
@@ -27,40 +22,21 @@ namespace hospital.domain.People
         public string ZipCode { get; set; } = string.Empty;
         public string Country { get; set; } = string.Empty;
 
-        public string? RoomNumber { get; set; }
-
-        public int? UserAccountId { get; set; }
-        public UserAccount? UserAccount { get; set; }
-
         public string MedicalRecordNumber { get; set; } = string.Empty;
 
-
-        //admissin information
         public DateTime AdmissionDate { get; set; }
         public DateTime DischargeDate { get; set; }
         public PatientStatus Status { get; set; } = PatientStatus.None;
 
-        //assigned care
         public int? AssignedDoctorId { get; set; }
-        public Employee? AssignedDoctor { get; set; }
-
         public int? DepartmentId { get; set; }
-        public Department? Department { get; set; }
+        public string? RoomNumber { get; set; }
 
-
-        //medical information
         public BloodType BloodType { get; set; } = BloodType.Unknown;
         public List<string> Allergies { get; set; } = new();
         public string? PrimaryDiagnosis { get; set; }
 
-
-        //insurance information
         public string InsuranceProvider { get; set; } = string.Empty;
         public string InsurancePolicyNumber { get; set; } = string.Empty;
-
-
-        public List<Visitor> Visitors { get; set; } = new();
-        public string FullName => $"{FirstName} {MiddelName} {LastName}".Trim();
-
     }
 }

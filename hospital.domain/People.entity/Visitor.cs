@@ -16,14 +16,14 @@ namespace hospital.domain.People
 
         public RelationshipType Relationship { get; set; } = RelationshipType.None;
 
-        // Which patient(s) this visitor is associated with
+        
         public List<Patient> VisitingPatients { get; set; } = new();
 
-        // Visit tracking
+        
         public DateTime? CheckInTime { get; set; }
         public DateTime? CheckOutTime { get; set; }
 
-        // Emergency contact flag
+        
         public bool IsEmergencyContact { get; set; } = false;
 
         public string FullName() => $"{FirstName} {LastName}";

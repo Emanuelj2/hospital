@@ -1,11 +1,12 @@
-﻿using hospital.domain.People;
+﻿using hospital.domain.Enums;
+using hospital.domain.People;
 using System;
 using System.Collections.Generic;
 using System.Text;
 
 namespace hospital.domain.Medical.entity
 {
-    public class Perscription
+    public class Prescription
     {
         public int Id { get; set; }
 

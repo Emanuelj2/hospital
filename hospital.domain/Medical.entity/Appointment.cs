@@ -1,4 +1,5 @@
-﻿using hospital.domain.Organization.entity;
+﻿using hospital.domain.Enums;
+using hospital.domain.Organization.entity;
 using hospital.domain.People;
 using System;
 using System.Collections.Generic;

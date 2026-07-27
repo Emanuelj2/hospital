@@ -1,4 +1,6 @@
-﻿using hospital.domain.People;
+﻿using hospital.domain.Enums;
+using hospital.domain.People;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -17,7 +19,9 @@ namespace hospital.domain.Billing.entity
         public DateTime IssueDate { get; set; }
         public DateTime DueDate { get; set; }
 
+        [Precision(10, 2)]
         public decimal TotalAmount { get; set; }
+        [Precision(10, 2)]
         public decimal AmountPaid { get; set; } = 0;
 
         public string? Description { get; set; }
