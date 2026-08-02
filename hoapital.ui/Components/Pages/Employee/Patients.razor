@@ -1,0 +1,195 @@
+﻿@page "/patients"
+@using hospital.application.DTOs
+@inject IHttpClientFactory ClientFactory
+@rendermode InteractiveServer
+
+<h3>Patients</h3>
+
+@if (errorMessage != null)
+{
+    <div class="alert alert-danger">@errorMessage</div>
+}
+
+@if (patients == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Medical Record #</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var patient in patients)
+            {
+                <tr>
+                    <td>@patient.Id</td>
+                    <td>@patient.FirstName @patient.LastName</td>
+                    <td>@patient.Email</td>
+                    <td>@patient.MedicalRecordNumber</td>
+                    <td>@patient.Status</td>
+                    <td>
+                        <button class="btn btn-sm btn-secondary" @onclick="() => EditPatient(patient)">Edit</button>
+                        <button class="btn btn-sm btn-danger" @onclick="() => DeletePatient(patient.Id)">Delete</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<hr />
+
+<h4>@(editingId == null ? "Add New Patient" : $"Editing Patient #{editingId}")</h4>
+
+<EditForm Model="formModel" OnValidSubmit="SavePatient" FormName="patientForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+
+    <div class="mb-2">
+        <label>First Name</label>
+        <InputText class="form-control" @bind-Value="formModel.FirstName" />
+    </div>
+
+    <div class="mb-2">
+        <label>Middle Name</label>
+        <InputText class="form-control" @bind-Value="formModel.MiddleName" />
+    </div>
+
+    <div class="mb-2">
+        <label>Last Name</label>
+        <InputText class="form-control" @bind-Value="formModel.LastName" />
+    </div>
+
+    <div class="mb-2">
+        <label>Email</label>
+        <InputText class="form-control" @bind-Value="formModel.Email" />
+    </div>
+
+    <div class="mb-2">
+        <label>Phone Number</label>
+        <InputText class="form-control" @bind-Value="formModel.PhoneNumber" />
+    </div>
+
+    <div class="mb-2">
+        <label>Medical Record Number</label>
+        <InputText class="form-control" @bind-Value="formModel.MedicalRecordNumber" />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Save</button>
+    @if (editingId != null)
+    {
+        <button type="button" class="btn btn-outline-secondary" @onclick="CancelEdit">Cancel</button>
+    }
+</EditForm>
+
+@code {
+    private List<PatientDto>? patients;
+    private PatientDto formModel = new();
+    private int? editingId;
+    private string? errorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadPatients();
+    }
+
+    private async Task LoadPatients()
+    {
+        var client = ClientFactory.CreateClient("HospitalAPI");
+        try
+        {
+            patients = await client.GetFromJsonAsync<List<PatientDto>>("api/patients");
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load patients: {ex.Message}";
+        }
+    }
+
+    private void EditPatient(PatientDto patient)
+    {
+        editingId = patient.Id;
+        formModel = new PatientDto
+        {
+            Id = patient.Id,
+            FirstName = patient.FirstName,
+            MiddleName = patient.MiddleName,
+            LastName = patient.LastName,
+            Email = patient.Email,
+            PhoneNumber = patient.PhoneNumber,
+            MedicalRecordNumber = patient.MedicalRecordNumber,
+            DateOfBirth = patient.DateOfBirth,
+            Status = patient.Status
+        };
+    }
+
+    private void CancelEdit()
+    {
+        editingId = null;
+        formModel = new PatientDto();
+    }
+
+    private async Task SavePatient()
+    {
+        var client = ClientFactory.CreateClient("HospitalAPI");
+        errorMessage = null;
+
+        try
+        {
+            if (editingId == null)
+            {
+                var response = await client.PostAsJsonAsync("api/patients", formModel);
+                if (!response.IsSuccessStatusCode)
+                {
+                    errorMessage = $"Create failed: {response.StatusCode}";
+                    return;
+                }
+            }
+            else
+            {
+                var response = await client.PutAsJsonAsync($"api/patients/{editingId}", formModel);
+                if (!response.IsSuccessStatusCode)
+                {
+                    errorMessage = $"Update failed: {response.StatusCode}";
+                    return;
+                }
+            }
+
+            formModel = new PatientDto();
+            editingId = null;
+            await LoadPatients();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Save failed: {ex.Message}";
+        }
+    }
+
+    private async Task DeletePatient(int id)
+    {
+        var client = ClientFactory.CreateClient("HospitalAPI");
+        try
+        {
+            var response = await client.DeleteAsync($"api/patients/{id}");
+            if (!response.IsSuccessStatusCode)
+            {
+                errorMessage = $"Delete failed: {response.StatusCode}";
+                return;
+            }
+            await LoadPatients();
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Delete failed: {ex.Message}";
+        }
+    }
+}

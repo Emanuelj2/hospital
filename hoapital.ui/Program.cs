@@ -7,9 +7,9 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 
-builder.Services.AddHttpClient("hoapital.api", client =>
+builder.Services.AddHttpClient("HospitalAPI", client =>
 {
-    client.BaseAddress = new Uri(builder.Configuration["ApiBaseUrl"] ?? throw new InvalidOperationException("ApiBaseUrl is not configured."));
+    client.BaseAddress = new Uri("https://localhost:7188/");
 });
 
 var app = builder.Build();

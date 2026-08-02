@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using hospital.infrastructure.Data;
+using hospital.infrastructure.Repositories;
+using hospital.application.Interfaces;
+using hospital.application.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -15,12 +18,16 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<HospitalDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+//services
+builder.Services.AddScoped<IPatientRepository, PatientRepository>();
+builder.Services.AddScoped<IPatientService, PatientService>();
+
 //add cors
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("allow-ui", policy =>
     {
-        policy.WithOrigins(builder.Configuration["UiBaseUrl"] ?? throw new InvalidOperationException("UiBaseUrl is not configured."))
+        policy.WithOrigins("https://localhost:7057")
             .AllowAnyHeader()
             .AllowAnyMethod();
     });
@@ -37,10 +44,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
+app.UseCors("allow-ui");
 app.UseAuthorization();
 
 app.MapControllers();
-app.UseCors("allow-ui");
+
 
 app.Run();

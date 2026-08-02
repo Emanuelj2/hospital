@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net10.0</TargetFramework>
@@ -9,6 +9,11 @@
 
   <ItemGroup>
     <ProjectReference Include="..\hospital.application\hospital.application.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Components\Pages\Auth\" />
+    <Folder Include="Components\Pages\Doctor\" />
   </ItemGroup>
 
 </Project>
