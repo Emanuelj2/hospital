@@ -8,7 +8,7 @@ using System.Text;
 
 namespace hospital.infrastructure.Repositories
 {
-    internal class UserAccountRepository : IUserAccountRepository
+    public class UserAccountRepository : IUserAccountRepository
     {
         private readonly HospitalDbContext hospitalDbContext;
 

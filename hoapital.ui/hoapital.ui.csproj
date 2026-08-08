@@ -12,7 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Components\Pages\Auth\" />
     <Folder Include="Components\Pages\Doctor\" />
   </ItemGroup>
 

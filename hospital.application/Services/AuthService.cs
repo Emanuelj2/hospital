@@ -4,6 +4,8 @@ using BCrypt.Net;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Microsoft.IdentityModel.Tokens.Experimental;
+using hospital.domain.People;
 
 namespace hospital.application.Services
 {
@@ -40,6 +42,37 @@ namespace hospital.application.Services
                 UserAccountId = account.Id,
                 Email = account.Email,
                 Role = account.Role,
+                Token = token,
+                ExpiresAt = expiresAt
+            };
+        }
+
+        public async Task<AuthResponseDto> RegisterAsync(RegisterDto registerDto)
+        {
+            var account = await userAccountRepository.GetByEmailAsync(registerDto.Email);
+
+            if(account != null)
+            {
+                throw new InvalidOperationException("Email is already registered.");
+            }
+
+            var newAccount = new UserAccount
+            {
+                Email = registerDto.Email,
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
+                Role = registerDto.Role,
+                IsActive = true
+            };
+
+            await userAccountRepository.AddAsync(newAccount);
+
+            var (token, expiresAt) = tokenService.GenerateToken(newAccount);
+
+            return new AuthResponseDto
+            {
+                UserAccountId = newAccount.Id,
+                Email = newAccount.Email,
+                Role = newAccount.Role,
                 Token = token,
                 ExpiresAt = expiresAt
             };

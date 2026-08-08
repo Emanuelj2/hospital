@@ -1,10 +1,23 @@
+using hoapital.ui.Auth;
 using hoapital.ui.Components;
+using Microsoft.AspNetCore.Components.Authorization;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
+
+//authState
+builder.Services.AddScoped<CustomAuthStateProvider>();
+builder.Services.AddScoped<AuthenticationStateProvider>(
+    sp => sp.GetRequiredService<CustomAuthStateProvider>());
+builder.Services.AddAuthorizationCore();
+builder.Services.AddCascadingAuthenticationState();
+
+
+// Attaches the JWT to outgoing API requests
+builder.Services.AddScoped<AuthTokenHandler>();
 
 
 builder.Services.AddHttpClient("HospitalAPI", client =>
