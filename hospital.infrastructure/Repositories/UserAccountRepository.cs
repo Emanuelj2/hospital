@@ -28,7 +28,7 @@ namespace hospital.infrastructure.Repositories
 
 
         public async Task<UserAccount?> GetByEmailAsync(string email) =>
-            await hospitalDbContext.UserAccounts.Include(u => u.Role).FirstOrDefaultAsync(u => u.Email == email);
+            await hospitalDbContext.UserAccounts.FirstOrDefaultAsync(u => u.Email == email);
 
 
         public async Task<UserAccount?> GetByIdAsync(int id) =>

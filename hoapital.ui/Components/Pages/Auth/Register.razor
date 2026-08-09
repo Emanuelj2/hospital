@@ -1,5 +1,4 @@
-﻿@page "/"
-@page "/login"
+﻿@page "/register"
 @rendermode InteractiveServer
 @layout BlankLayout
 @using hospital.application.DTOs
@@ -26,38 +25,45 @@
             </div>
         </div>
 
-        <div class="auth-heading">Welcome back</div>
-        <div class="auth-subtitle">Sign in to access your patient records and schedule.</div>
+        <div class="auth-heading">Create your account</div>
+        <div class="auth-subtitle">Register to get access to patient records and scheduling.</div>
 
-        <EditForm Model="loginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
+        <EditForm Model="registerModel" OnValidSubmit="HandleRegister" FormName="registerForm">
             <DataAnnotationsValidator />
 
             <div class="auth-field">
                 <div class="auth-field-header">
                     <label>Email address</label>
                 </div>
-                <InputText class="form-control" @bind-Value="loginModel.Email" placeholder="staff@medihealth.com" />
+                <InputText class="form-control" @bind-Value="registerModel.Email" placeholder="staff@medihealth.com" />
             </div>
 
             <div class="auth-field">
                 <div class="auth-field-header">
                     <label>Password</label>
-                    <a class="auth-link" href="/forgot-password">Forgot password?</a>
                 </div>
                 <div class="auth-input-wrap">
                     <input class="auth-input" type="@(showPassword ? "text" : "password")"
-                           value="@loginModel.Password"
+                           value="@registerModel.Password"
                            @oninput="OnPasswordInput"
-                           placeholder="••••••••" />
+                           placeholder="At least 8 characters" />
                     <button type="button" class="auth-eye" @onclick="TogglePassword">
                         @(showPassword ? "Hide" : "Show")
                     </button>
                 </div>
             </div>
 
-            <div class="auth-checkbox-row">
-                <input type="checkbox" id="keepSignedIn" @bind="keepSignedIn" />
-                <label for="keepSignedIn">Keep me signed in</label>
+            <div class="auth-field">
+                <div class="auth-field-header">
+                    <label>Role</label>
+                </div>
+                <InputSelect class="form-select" @bind-Value="registerModel.Role">
+                    <option value="">Select a role</option>
+                    <option value="Employee">Employee</option>
+                    <option value="Doctor">Doctor</option>
+                    <option value="Patient">Patient</option>
+                    <option value="Visitor">Visitor</option>
+                </InputSelect>
             </div>
 
             @if (errorMessage != null)
@@ -65,14 +71,19 @@
                 <div class="auth-alert">@errorMessage</div>
             }
 
+            @if (successMessage != null)
+            {
+                <div class="auth-alert auth-alert-success">@successMessage</div>
+            }
+
             <button type="submit" class="auth-submit" disabled="@isSubmitting">
-                @(isSubmitting ? "Signing in..." : "Sign in")
+                @(isSubmitting ? "Creating account..." : "Sign up")
             </button>
         </EditForm>
 
         <div class="auth-divider">or</div>
 
-        <button type="button" class="auth-secondary">Sign in with hospital SSO</button>
+        <button type="button" class="auth-secondary">Sign up with hospital SSO</button>
 
         <div class="auth-secure">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -82,7 +93,7 @@
         </div>
 
         <div class="auth-footer">
-            Don't have an account? <a href="/register">Create one</a>
+            Already have an account? <a href="/login">Sign in</a>
         </div>
     </div>
 
@@ -90,40 +101,44 @@
 </div>
 
 @code {
-    private LoginDto loginModel = new();
+    private RegisterDto registerModel = new();
     private string? errorMessage;
+    private string? successMessage;
     private bool isSubmitting;
     private bool showPassword;
-    private bool keepSignedIn;
 
     private void TogglePassword() => showPassword = !showPassword;
 
-    private void OnPasswordInput(ChangeEventArgs e) => loginModel.Password = e.Value?.ToString() ?? string.Empty;
+    private void OnPasswordInput(ChangeEventArgs e) => registerModel.Password = e.Value?.ToString() ?? string.Empty;
 
-    private async Task HandleLogin()
+    private async Task HandleRegister()
     {
         isSubmitting = true;
         errorMessage = null;
+        successMessage = null;
 
         try
         {
             var client = ClientFactory.CreateClient("HospitalAPI");
-            var response = await client.PostAsJsonAsync("api/auth/login", loginModel);
+            var response = await client.PostAsJsonAsync("api/auth/register", registerModel);
 
             if (!response.IsSuccessStatusCode)
             {
-                errorMessage = "Invalid email or password.";
+                errorMessage = "Registration failed. That email may already be in use.";
                 return;
             }
 
             var result = await response.Content.ReadFromJsonAsync<AuthResponseDto>();
             if (result == null)
             {
-                errorMessage = "Login failed. Please try again.";
+                errorMessage = "Registration failed. Please try again.";
                 return;
             }
 
             await CustomAuthState.MarkUserAsAuthenticated(result.Token);
+            successMessage = "Account created! Redirecting...";
+
+            await Task.Delay(800);
 
             Navigation.NavigateTo(result.Role switch
             {
@@ -134,7 +149,7 @@
         }
         catch (Exception ex)
         {
-            errorMessage = $"Login failed: {ex.Message}";
+            errorMessage = $"Registration failed: {ex.Message}";
         }
         finally
         {
