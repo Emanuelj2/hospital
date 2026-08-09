@@ -1,11 +1,13 @@
 ﻿using hospital.application.DTOs;
 using hospital.application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace hospital.api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class PatientsController : Controller
     {
         private readonly IPatientService patientService;

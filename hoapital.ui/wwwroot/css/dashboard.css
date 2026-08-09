@@ -1,0 +1,167 @@
+﻿.dash-page {
+    min-height: 100vh;
+    background: #eef3f2;
+    padding: 0 0 3rem 0;
+}
+
+.dash-header {
+    background: linear-gradient(90deg, #4fae8f, #4f8fae);
+    padding: 2rem 2.5rem;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.dash-header-left {
+    display: flex;
+    align-items: center;
+    gap: 0.9rem;
+}
+
+.dash-brand-icon {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    border-radius: 12px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.dash-brand-name {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.3rem;
+    font-weight: 700;
+    line-height: 1.1;
+}
+
+.dash-brand-tag {
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    opacity: 0.85;
+    font-weight: 600;
+}
+
+.dash-welcome {
+    text-align: right;
+}
+
+.dash-welcome-name {
+    font-size: 0.95rem;
+    font-weight: 600;
+}
+
+.dash-welcome-role {
+    font-size: 0.78rem;
+    opacity: 0.85;
+}
+
+.dash-logout {
+    background: rgba(255, 255, 255, 0.15);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    color: white;
+    border-radius: 8px;
+    padding: 0.45rem 0.9rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 0.75rem;
+}
+
+    .dash-logout:hover {
+        background: rgba(255, 255, 255, 0.28);
+    }
+
+.dash-body {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 0 1.5rem;
+}
+
+.dash-heading {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #1f2d3d;
+    margin-bottom: 0.3rem;
+}
+
+.dash-subtitle {
+    font-size: 0.9rem;
+    color: #6b7c93;
+    margin-bottom: 1.75rem;
+}
+
+.dash-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 1.25rem;
+}
+
+.dash-card {
+    background: white;
+    border-radius: 14px;
+    padding: 1.5rem;
+    box-shadow: 0 10px 30px rgba(30, 41, 59, 0.08);
+    position: relative;
+    overflow: hidden;
+}
+
+    .dash-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #4fae8f, #4f8fae);
+    }
+
+.dash-card-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 10px;
+    background: linear-gradient(135deg, #e6f3ee, #e6eef3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #4f8fae;
+    margin-bottom: 0.9rem;
+    font-size: 1.2rem;
+}
+
+.dash-card-title {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #1f2d3d;
+    margin-bottom: 0.4rem;
+}
+
+.dash-card-text {
+    font-size: 0.87rem;
+    color: #6b7c93;
+    margin-bottom: 1.1rem;
+}
+
+.dash-card-btn {
+    display: inline-block;
+    background: linear-gradient(90deg, #4fae8f, #4f8fae);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 0.55rem 1rem;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+    .dash-card-btn:hover {
+        opacity: 0.92;
+        color: white;
+    }

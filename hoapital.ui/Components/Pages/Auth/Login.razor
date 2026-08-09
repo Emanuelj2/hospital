@@ -125,12 +125,7 @@
 
             await CustomAuthState.MarkUserAsAuthenticated(result.Token);
 
-            Navigation.NavigateTo(result.Role switch
-            {
-                "Doctor" => "/doctor/dashboard",
-                "Employee" => "/employee/dashboard",
-                _ => "/"
-            });
+            Navigation.NavigateTo("/dashboard");
         }
         catch (Exception ex)
         {

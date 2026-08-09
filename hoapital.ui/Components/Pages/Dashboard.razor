@@ -1,0 +1,92 @@
+﻿@page "/dashboard"
+@rendermode InteractiveServer
+@layout BlankLayout
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization
+@using hoapital.ui.Auth
+@inject CustomAuthStateProvider CustomAuthState
+@inject NavigationManager Navigation
+
+<HeadContent>
+    <link href="css/dashboard.css" rel="stylesheet" />
+</HeadContent>
+
+<div class="dash-page">
+    <div class="dash-header">
+        <div class="dash-header-left">
+            <div class="dash-brand-icon">+</div>
+            <div>
+                <div class="dash-brand-name">MediHealth</div>
+                <div class="dash-brand-tag">STAFF PORTAL</div>
+            </div>
+        </div>
+
+        <AuthorizeView>
+            <Authorized>
+                <div style="display:flex; align-items:center;">
+                    <div class="dash-welcome">
+                        <div class="dash-welcome-name">@context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value</div>
+                        <div class="dash-welcome-role">@context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</div>
+                    </div>
+                    <button class="dash-logout" @onclick="HandleLogout">Log out</button>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+    </div>
+
+    <div class="dash-body">
+        <div class="dash-heading">Dashboard</div>
+        <div class="dash-subtitle">Here's an overview of what's available to you.</div>
+
+        <AuthorizeView>
+            <Authorized>
+                <div class="dash-grid">
+                    <!-- Visible to everyone who is logged in -->
+                    <div class="dash-card">
+                        <div class="dash-card-icon">i</div>
+                        <div class="dash-card-title">Overview</div>
+                        <div class="dash-card-text">General information available to all users.</div>
+                    </div>
+
+                    <!-- Employees and Doctors -->
+                    <AuthorizeView Roles="Employee,Doctor" Context="employeeContext">
+                        <div class="dash-card">
+                            <div class="dash-card-icon">P</div>
+                            <div class="dash-card-title">Patient Management</div>
+                            <div class="dash-card-text">Manage patients, appointments, and records.</div>
+                            <a class="dash-card-btn" href="/employee/patients">Manage Patients</a>
+                        </div>
+                    </AuthorizeView>
+
+                    <!-- Doctors only -->
+                    <AuthorizeView Roles="Doctor" Context="doctorContext">
+                        <div class="dash-card">
+                            <div class="dash-card-icon">D</div>
+                            <div class="dash-card-title">My Patients</div>
+                            <div class="dash-card-text">View patients currently assigned to you.</div>
+                            <a class="dash-card-btn" href="/doctor/my-patients">View My Patients</a>
+                        </div>
+                    </AuthorizeView>
+
+                    <!-- Patients only -->
+                    <AuthorizeView Roles="Patient" Context="patientContext">
+                        <div class="dash-card">
+                            <div class="dash-card-icon">R</div>
+                            <div class="dash-card-title">My Records</div>
+                            <div class="dash-card-text">View your appointments, prescriptions, and lab results.</div>
+                        </div>
+                    </AuthorizeView>
+                </div>
+            </Authorized>
+        </AuthorizeView>
+    </div>
+</div>
+
+@code {
+    private async Task HandleLogout()
+    {
+        await CustomAuthState.MarkUserAsLoggedOut();
+        Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}
