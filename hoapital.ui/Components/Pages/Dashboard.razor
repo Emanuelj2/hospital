@@ -87,6 +87,6 @@
     private async Task HandleLogout()
     {
         await CustomAuthState.MarkUserAsLoggedOut();
-        Navigation.NavigateTo("/login", forceLoad: true);
+        Navigation.NavigateTo("/", forceLoad: true);
     }
 }
