@@ -13,11 +13,10 @@ namespace hospital.infrastructure.Data
     {
         public HospitalDbContext(DbContextOptions<HospitalDbContext> options) : base(options){}
 
-        //DbSets
-        #region 
+        #region //DbSets
         //people
         public DbSet<Patient> Patients { get; set; }
-        public DbSet<Employee> Employees { get; set; }
+        public DbSet<Employee> Employees { get; set; } 
         public DbSet<UserAccount> UserAccounts { get; set; }
         public DbSet<Visitor> Visitors { get; set; }
 
@@ -57,6 +56,10 @@ namespace hospital.infrastructure.Data
                 .HasForeignKey(e => e.DepartmentId)
                 .OnDelete(DeleteBehavior.Restrict);
             
+            modelBuilder.Entity<Employee>()
+                .HasIndex(e => e.Email)
+                .IsUnique();
+
             modelBuilder.Entity<Department>()
                 .HasOne(d => d.Head)
                 .WithMany()
