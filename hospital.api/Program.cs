@@ -22,6 +22,8 @@ builder.Services.AddDbContext<HospitalDbContext>(options =>
 //services
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
 builder.Services.AddScoped<IPatientService, PatientService>();
+builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
+builder.Services.AddScoped<IEmployeeService, EmployeeService>();
 
 //authServices
 builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
