@@ -43,7 +43,7 @@ namespace hospital.application.DTOs
         public string MedicalRecordNumber { get; set; } = string.Empty;
 
         public DateTime AdmissionDate { get; set; }
-        public DateTime DischargeDate { get; set; }
+        public DateTime? DischargeDate { get; set; }
         public PatientStatus Status { get; set; } = PatientStatus.None;
 
         

@@ -6,6 +6,7 @@
 @inject IHttpClientFactory ClientFactory
 @inject CustomAuthStateProvider CustomAuthState
 @inject NavigationManager Navigation
+@inject IWebHostEnvironment Env
 
 <HeadContent>
     <link href="css/auth.css" rel="stylesheet" />
@@ -30,6 +31,15 @@
 
         <EditForm Model="loginModel" OnValidSubmit="HandleLogin" FormName="loginForm">
             <DataAnnotationsValidator />
+
+            @if (Env.IsDevelopment())
+            {
+                <div class="auth-quick-row">
+                    <button type="button" class="auth-quick-btn" @onclick='() => FillDemoCredentials("Admin")'>Admin</button>
+                    <button type="button" class="auth-quick-btn" @onclick='() => FillDemoCredentials("Doctor")'>Doctor</button>
+                    <button type="button" class="auth-quick-btn" @onclick='() => FillDemoCredentials("Patient")'>Patient</button>
+                </div>
+            }
 
             <div class="auth-field">
                 <div class="auth-field-header">
@@ -73,6 +83,23 @@
 
         <button type="button" class="auth-secondary">Sign in with hospital SSO</button>
 
+        @if (Env.IsDevelopment())
+        {
+            <button type="button" class="auth-secondary" @onclick="HandleSeedData" disabled="@isSeeding">
+                @(isSeeding ? "Seeding..." : confirmingReset ? "Click again to erase & reseed" : "Seed Data")
+            </button>
+
+            @if (confirmingReset)
+            {
+                <div class="auth-alert">This will delete all existing data and replace it with seed data. Click "Seed Data" again to confirm.</div>
+            }
+
+            @if (seedMessage != null)
+            {
+                <div class="auth-alert auth-alert-success">@seedMessage</div>
+            }
+        }
+
         <div class="auth-secure">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
@@ -91,11 +118,26 @@
 @code {
     private LoginDto loginModel = new();
     private string? errorMessage;
+    private string? seedMessage;
     private bool isSubmitting;
+    private bool isSeeding;
+    private bool confirmingReset;
     private bool showPassword;
     private bool keepSignedIn;
 
     private void TogglePassword() => showPassword = !showPassword;
+
+    private void FillDemoCredentials(string role)
+    {
+        (loginModel.Email, loginModel.Password) = role switch
+        {
+            "Admin" => ("admin@medihealth.local", "Admin123!"),
+            "Doctor" => ("doctor@medihealth.local", "Doctor123!"),
+            "Patient" => ("patient@medihealth.local", "Patient123!"),
+            _ => (loginModel.Email, loginModel.Password)
+        };
+        errorMessage = null;
+    }
 
     private void OnPasswordInput(ChangeEventArgs e) => loginModel.Password = e.Value?.ToString() ?? string.Empty;
 
@@ -133,6 +175,45 @@
         finally
         {
             isSubmitting = false;
+        }
+    }
+
+    private async Task HandleSeedData()
+    {
+        if (!confirmingReset)
+        {
+            confirmingReset = true;
+            seedMessage = null;
+            errorMessage = null;
+            return;
+        }
+
+        confirmingReset = false;
+        isSeeding = true;
+        seedMessage = null;
+        errorMessage = null;
+
+        try
+        {
+            var client = ClientFactory.CreateClient("HospitalAPI");
+            var response = await client.PostAsync("api/seed", null);
+
+            if (!response.IsSuccessStatusCode)
+            {
+                errorMessage = "Failed to seed data.";
+                return;
+            }
+
+            var result = await response.Content.ReadFromJsonAsync<SeedResultDto>();
+            seedMessage = result?.Message ?? "Seed request completed.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Seed failed: {ex.Message}";
+        }
+        finally
+        {
+            isSeeding = false;
         }
     }
 }

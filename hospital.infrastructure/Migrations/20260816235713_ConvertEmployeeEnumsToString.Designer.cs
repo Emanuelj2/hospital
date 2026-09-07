@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using hospital.infrastructure.Data;
 
@@ -11,9 +12,11 @@ using hospital.infrastructure.Data;
 namespace hospital.infrastructure.Migrations
 {
     [DbContext(typeof(HospitalDbContext))]
-    partial class HospitalDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260816235713_ConvertEmployeeEnumsToString")]
+    partial class ConvertEmployeeEnumsToString
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,9 +80,8 @@ namespace hospital.infrastructure.Migrations
                     b.Property<DateTime?>("ResolutionDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("SubmissionDate")
                         .HasColumnType("datetime2");
@@ -124,9 +126,8 @@ namespace hospital.infrastructure.Migrations
                     b.Property<int>("PatientId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<decimal>("TotalAmount")
                         .HasPrecision(10, 2)
@@ -172,9 +173,8 @@ namespace hospital.infrastructure.Migrations
                     b.Property<DateTime>("ScheduledDateTime")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -219,9 +219,8 @@ namespace hospital.infrastructure.Migrations
                     b.Property<string>("ResultValue")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<DateTime>("TestDate")
                         .HasColumnType("datetime2");
@@ -283,9 +282,8 @@ namespace hospital.infrastructure.Migrations
                     b.Property<DateTime>("StartDay")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -428,9 +426,7 @@ namespace hospital.infrastructure.Migrations
                     b.HasIndex("Email")
                         .IsUnique();
 
-                    b.HasIndex("UserAccountId")
-                        .IsUnique()
-                        .HasFilter("[UserAccountId] IS NOT NULL");
+                    b.HasIndex("UserAccountId");
 
                     b.ToTable("Employees");
                 });
@@ -457,9 +453,8 @@ namespace hospital.infrastructure.Migrations
                     b.Property<int?>("AssignedDoctorId")
                         .HasColumnType("int");
 
-                    b.Property<string>("BloodType")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("BloodType")
+                        .HasColumnType("int");
 
                     b.Property<string>("City")
                         .IsRequired()
@@ -475,7 +470,7 @@ namespace hospital.infrastructure.Migrations
                     b.Property<int?>("DepartmentId")
                         .HasColumnType("int");
 
-                    b.Property<DateTime?>("DischargeDate")
+                    b.Property<DateTime>("DischargeDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Email")
@@ -524,9 +519,8 @@ namespace hospital.infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Status")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
 
                     b.Property<int?>("UserAccountId")
                         .HasColumnType("int");
@@ -544,9 +538,7 @@ namespace hospital.infrastructure.Migrations
                     b.HasIndex("MedicalRecordNumber")
                         .IsUnique();
 
-                    b.HasIndex("UserAccountId")
-                        .IsUnique()
-                        .HasFilter("[UserAccountId] IS NOT NULL");
+                    b.HasIndex("UserAccountId");
 
                     b.ToTable("Patients");
                 });
@@ -618,9 +610,8 @@ namespace hospital.infrastructure.Migrations
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<string>("Relationship")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Relationship")
+                        .HasColumnType("int");
 
                     b.HasKey("Id");
 
@@ -751,8 +742,7 @@ namespace hospital.infrastructure.Migrations
 
                     b.HasOne("hospital.domain.People.UserAccount", "UserAccount")
                         .WithMany()
-                        .HasForeignKey("UserAccountId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("UserAccountId");
 
                     b.Navigation("Department");
 
@@ -772,8 +762,7 @@ namespace hospital.infrastructure.Migrations
 
                     b.HasOne("hospital.domain.People.UserAccount", "UserAccount")
                         .WithMany()
-                        .HasForeignKey("UserAccountId")
-                        .OnDelete(DeleteBehavior.SetNull);
+                        .HasForeignKey("UserAccountId");
 
                     b.Navigation("AssignedDoctor");
 

@@ -1,8 +1,10 @@
 ﻿using hospital.application.DTOs;
+using hospital.application.Exceptions;
 using hospital.application.Interfaces;
+using hospital.domain.Enums;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.ComponentModel.DataAnnotations;
+using Microsoft.AspNetCore.RateLimiting;
+using System;
 
 namespace hospital.api.Controllers
 {
@@ -19,6 +21,7 @@ namespace hospital.api.Controllers
 
         // POST: api/Auth/Login
         [HttpPost("Login")]
+        [EnableRateLimiting("login")]
         public async Task<ActionResult<AuthResponseDto>> Login(LoginDto loginDto)
         {
             try
@@ -32,13 +35,21 @@ namespace hospital.api.Controllers
             }
         }
 
-        // TEMPORARY: exposes account creation for setup/testing purposes.
-        // Lock this down (e.g. require an admin role, or remove entirely and
-        // seed accounts another way) before this app is ever exposed publicly
-
+        // Public self-registration is only allowed for the Patient role. Employee/Doctor/Admin
+        // accounts carry elevated access and must be created by an already-authenticated Admin
+        // (or, for local dev, via the Seed Data button) — never by an anonymous caller choosing
+        // their own role.
         [HttpPost("Register")]
         public async Task<ActionResult<AuthResponseDto>> Register(RegisterDto registerDto)
         {
+            var isSelfRegisteringAsPatient = string.Equals(registerDto.Role, nameof(AccountRole.Patient), StringComparison.OrdinalIgnoreCase);
+            var callerIsAdmin = User.Identity?.IsAuthenticated == true && User.IsInRole(nameof(AccountRole.Admin));
+
+            if (!isSelfRegisteringAsPatient && !callerIsAdmin)
+            {
+                return Forbid();
+            }
+
             try
             {
                 var result = await authService.RegisterAsync(registerDto);

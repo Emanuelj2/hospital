@@ -1,10 +1,11 @@
 ﻿using hospital.application.DTOs;
+using hospital.application.Exceptions;
 using hospital.application.Interfaces;
 using BCrypt.Net;
+using hospital.domain.Enums;
 using System;
 using System.Collections.Generic;
 using System.Text;
-using Microsoft.IdentityModel.Tokens.Experimental;
 using hospital.domain.People;
 
 namespace hospital.application.Services
@@ -13,6 +14,11 @@ namespace hospital.application.Services
     {
         private readonly IUserAccountRepository userAccountRepository;
         private readonly ITokenService tokenService;
+
+        // Used to run a BCrypt comparison even when no account was found, so a login
+        // attempt against an unknown email takes the same time as one against a known
+        // email with a wrong password — otherwise response timing leaks which emails exist.
+        private static readonly string DummyPasswordHash = BCrypt.Net.BCrypt.HashPassword(Guid.NewGuid().ToString());
 
         public AuthService(IUserAccountRepository userAccountRepository, ITokenService tokenService)
         {
@@ -24,13 +30,9 @@ namespace hospital.application.Services
         {
             var account = await userAccountRepository.GetByEmailAsync(loginDto.Email);
 
-            if(account == null || !account.IsActive)
-            {
-                throw new UnauthorizedAccessException("Invalid email or password.");
-            }
+            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(loginDto.Password, account?.PasswordHash ?? DummyPasswordHash);
 
-            bool isPasswordValid = BCrypt.Net.BCrypt.Verify(loginDto.Password, account.PasswordHash);
-            if(!isPasswordValid)
+            if (account == null || !account.IsActive || !isPasswordValid)
             {
                 throw new UnauthorizedAccessException("Invalid email or password.");
             }
@@ -41,7 +43,7 @@ namespace hospital.application.Services
             {
                 UserAccountId = account.Id,
                 Email = account.Email,
-                Role = account.Role,
+                Role = account.Role.ToString(),
                 Token = token,
                 ExpiresAt = expiresAt
             };
@@ -49,6 +51,11 @@ namespace hospital.application.Services
 
         public async Task<AuthResponseDto> RegisterAsync(RegisterDto registerDto)
         {
+            if (!Enum.TryParse<AccountRole>(registerDto.Role, ignoreCase: true, out var role) || role == AccountRole.None)
+            {
+                throw new ValidationException($"'{registerDto.Role}' is not a valid role.");
+            }
+
             var account = await userAccountRepository.GetByEmailAsync(registerDto.Email);
 
             if(account != null)
@@ -60,7 +67,7 @@ namespace hospital.application.Services
             {
                 Email = registerDto.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
-                Role = registerDto.Role,
+                Role = role,
                 IsActive = true
             };
 
@@ -72,7 +79,7 @@ namespace hospital.application.Services
             {
                 UserAccountId = newAccount.Id,
                 Email = newAccount.Email,
-                Role = newAccount.Role,
+                Role = newAccount.Role.ToString(),
                 Token = token,
                 ExpiresAt = expiresAt
             };

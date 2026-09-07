@@ -1,4 +1,5 @@
 ﻿using hospital.application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using hospital.application.DTOs;
 using hospital.application.Exceptions;
@@ -7,6 +8,7 @@ namespace hospital.api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(Roles = "Admin")]
     public class EmployeeController : ControllerBase
     {
         private readonly IEmployeeService employeeService;

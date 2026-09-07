@@ -7,7 +7,7 @@ namespace hospital.api.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize]
+    [Authorize(Roles = "Employee,Doctor,Admin")]
     public class PatientsController : Controller
     {
         private readonly IPatientService patientService;

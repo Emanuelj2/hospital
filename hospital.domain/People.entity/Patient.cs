@@ -37,7 +37,7 @@ namespace hospital.domain.People
 
         //admissin information
         public DateTime AdmissionDate { get; set; }
-        public DateTime DischargeDate { get; set; }
+        public DateTime? DischargeDate { get; set; }
         public PatientStatus Status { get; set; } = PatientStatus.None;
 
         //assigned care
