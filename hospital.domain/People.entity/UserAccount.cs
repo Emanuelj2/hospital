@@ -1,4 +1,5 @@
-﻿using System;
+﻿using hospital.domain.Enums;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -9,7 +10,7 @@ namespace hospital.domain.People
         public int Id { get; set; }
         public string Email { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty; // "Employee", "Patient", "Visitor"
+        public AccountRole Role { get; set; } = AccountRole.None;
         public bool IsActive { get; set; } = true;
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }

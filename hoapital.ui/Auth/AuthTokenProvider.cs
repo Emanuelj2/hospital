@@ -1,27 +1,26 @@
-﻿using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
-using System.Net.Http.Headers;
+using Microsoft.AspNetCore.Components.Server.ProtectedBrowserStorage;
 
 namespace hoapital.ui.Auth
 {
-    public class AuthTokenHandler : DelegatingHandler
+    // Reads the JWT from protected session storage so components can attach it to outgoing
+    // API calls themselves. This must be injected directly into a component and called from
+    // an event handler or OnAfterRenderAsync — NOT from OnInitializedAsync, and NOT from a
+    // DelegatingHandler resolved through IHttpClientFactory's own internal handler-building
+    // scope. Neither of those has a working JS interop channel in Blazor Server, so
+    // ProtectedSessionStorage always throws there regardless of handler pooling settings.
+    public class AuthTokenProvider
     {
         private readonly ProtectedSessionStorage sessionStorage;
-        public AuthTokenHandler(ProtectedSessionStorage sessionStorage)
+
+        public AuthTokenProvider(ProtectedSessionStorage sessionStorage)
         {
             this.sessionStorage = sessionStorage;
         }
 
-
-        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
+        public async Task<string?> GetTokenAsync()
         {
             var result = await sessionStorage.GetAsync<string>("authToken");
-            
-            if (result.Success && !string.IsNullOrWhiteSpace(result.Value))
-            {
-                request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", result.Value);
-            }
-
-            return await base.SendAsync(request, cancellationToken);
+            return result.Success ? result.Value : null;
         }
     }
 }

@@ -28,7 +28,7 @@ namespace hospital.application.Services
 
             var issuer = configuration["Jwt:Issuer"];
             var audience = configuration["Jwt:Audience"];
-            var expiresInMinutes = int.Parse(configuration["Jwt:ExpiresInMinutes"] ?? "60");
+            var expiresInMinutes = int.Parse(configuration["Jwt:ExpirationInMinutes"] ?? "60");
 
 
             var expiresAt = DateTime.UtcNow.AddMinutes(expiresInMinutes);
@@ -37,7 +37,7 @@ namespace hospital.application.Services
             {
                 new(ClaimTypes.NameIdentifier, account.Id.ToString()),
                 new(ClaimTypes.Email, account.Email),
-                new(ClaimTypes.Role, account.Role)
+                new(ClaimTypes.Role, account.Role.ToString())
             };
 
             var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey));

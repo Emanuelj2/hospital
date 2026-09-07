@@ -27,9 +27,11 @@ builder.Services.AddAuthorizationCore();
 builder.Services.AddCascadingAuthenticationState();
 
 
-// Attaches the JWT to outgoing API requests
-builder.Services.AddScoped<AuthTokenHandler>();
-
+// Lets components read the current JWT from protected session storage and attach it
+// themselves. A pooled DelegatingHandler can't do this in Blazor Server — IHttpClientFactory
+// builds/resolves handlers through its own internal scope, which has no working JS interop
+// channel, so ProtectedSessionStorage would always fail there regardless of handler lifetime.
+builder.Services.AddScoped<AuthTokenProvider>();
 
 builder.Services.AddHttpClient("HospitalAPI", client =>
 {

@@ -50,12 +50,12 @@
                     </div>
 
                     <!-- Employees and Doctors -->
-                    <AuthorizeView Roles="Employee,Doctor" Context="employeeContext">
+                    <AuthorizeView Roles="Employee,Doctor,Admin" Context="employeeContext">
                         <div class="dash-card">
                             <div class="dash-card-icon">P</div>
                             <div class="dash-card-title">Patient Management</div>
                             <div class="dash-card-text">Manage patients, appointments, and records.</div>
-                            <a class="dash-card-btn" href="/employee/patients">Manage Patients</a>
+                            <a class="dash-card-btn" href="/patients">Manage Patients</a>
                         </div>
                     </AuthorizeView>
 

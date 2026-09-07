@@ -1,6 +1,13 @@
 ﻿@page "/patients"
+@attribute [Authorize(Roles = "Employee,Doctor,Admin")]
+@using System.Net.Http.Headers
+@using System.Text.Json
+@using System.Text.Json.Serialization
 @using hospital.application.DTOs
+@using hoapital.ui.Auth
+@using Microsoft.AspNetCore.Authorization
 @inject IHttpClientFactory ClientFactory
+@inject AuthTokenProvider AuthTokenProvider
 @rendermode InteractiveServer
 
 <h3>Patients</h3>
@@ -97,17 +104,44 @@ else
     private int? editingId;
     private string? errorMessage;
 
-    protected override async Task OnInitializedAsync()
+    // Based on the same "Web" preset GetFromJsonAsync/PostAsJsonAsync use by default (case-
+    // insensitive property matching), plus a string enum converter: the API serializes enums
+    // (Status, BloodType, ...) as their name, e.g. "Admitted", not the numeric default.
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerOptions.Web)
     {
-        await LoadPatients();
+        Converters = { new JsonStringEnumConverter() }
+    };
+
+    // Not OnInitializedAsync: this component's first render happens during Blazor's static
+    // SSR pass, before the interactive circuit (and its JS interop) exists. The auth token
+    // lives in protected session storage, which needs that interop, so the API call has to
+    // wait for OnAfterRenderAsync — the first point where the circuit is guaranteed to be up.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadPatients();
+            StateHasChanged();
+        }
+    }
+
+    private async Task<HttpClient> CreateAuthorizedClientAsync()
+    {
+        var client = ClientFactory.CreateClient("HospitalAPI");
+        var token = await AuthTokenProvider.GetTokenAsync();
+        if (!string.IsNullOrWhiteSpace(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+        return client;
     }
 
     private async Task LoadPatients()
     {
-        var client = ClientFactory.CreateClient("HospitalAPI");
+        var client = await CreateAuthorizedClientAsync();
         try
         {
-            patients = await client.GetFromJsonAsync<List<PatientDto>>("api/patients");
+            patients = await client.GetFromJsonAsync<List<PatientDto>>("api/patients", JsonOptions);
         }
         catch (Exception ex)
         {
@@ -140,14 +174,14 @@ else
 
     private async Task SavePatient()
     {
-        var client = ClientFactory.CreateClient("HospitalAPI");
+        var client = await CreateAuthorizedClientAsync();
         errorMessage = null;
 
         try
         {
             if (editingId == null)
             {
-                var response = await client.PostAsJsonAsync("api/patients", formModel);
+                var response = await client.PostAsJsonAsync("api/patients", formModel, JsonOptions);
                 if (!response.IsSuccessStatusCode)
                 {
                     errorMessage = $"Create failed: {response.StatusCode}";
@@ -156,7 +190,7 @@ else
             }
             else
             {
-                var response = await client.PutAsJsonAsync($"api/patients/{editingId}", formModel);
+                var response = await client.PutAsJsonAsync($"api/patients/{editingId}", formModel, JsonOptions);
                 if (!response.IsSuccessStatusCode)
                 {
                     errorMessage = $"Update failed: {response.StatusCode}";
@@ -176,7 +210,7 @@ else
 
     private async Task DeletePatient(int id)
     {
-        var client = ClientFactory.CreateClient("HospitalAPI");
+        var client = await CreateAuthorizedClientAsync();
         try
         {
             var response = await client.DeleteAsync($"api/patients/{id}");

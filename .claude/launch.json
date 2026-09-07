@@ -1,0 +1,17 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "hospital-api",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "hospital.api", "--launch-profile", "https"],
+      "port": 7188
+    },
+    {
+      "name": "hospital-ui",
+      "runtimeExecutable": "dotnet",
+      "runtimeArgs": ["run", "--project", "hoapital.ui", "--launch-profile", "https"],
+      "port": 7057
+    }
+  ]
+}
