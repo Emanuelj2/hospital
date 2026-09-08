@@ -1,5 +1,5 @@
-@page "/patients"
-@attribute [Authorize(Roles = "Employee,Doctor,Admin")]
+@page "/admin/departments"
+@attribute [Authorize(Roles = "Admin")]
 @using System.Net.Http.Headers
 @using System.Text.Json
 @using System.Text.Json.Serialization
@@ -15,8 +15,8 @@
 
     <div class="admin-body">
         <a class="admin-breadcrumb" href="/dashboard">&larr; Back to Dashboard</a>
-        <div class="dash-heading">Patients</div>
-        <div class="dash-subtitle">Manage patient records, admissions, and contact details.</div>
+        <div class="dash-heading">Departments</div>
+        <div class="dash-subtitle">Manage hospital departments and assign a head for each.</div>
 
         @if (errorMessage != null)
         {
@@ -24,13 +24,13 @@
         }
 
         <div class="admin-card">
-            @if (patients == null)
+            @if (departments == null)
             {
                 <div class="admin-empty">Loading...</div>
             }
-            else if (patients.Count == 0)
+            else if (departments.Count == 0)
             {
-                <div class="admin-empty">No patients yet — add one below.</div>
+                <div class="admin-empty">No departments yet — add one below.</div>
             }
             else
             {
@@ -39,23 +39,30 @@
                         <thead>
                             <tr>
                                 <th>Name</th>
-                                <th>Email</th>
-                                <th>Medical Record #</th>
-                                <th>Status</th>
+                                <th>Location</th>
+                                <th>Head</th>
                                 <th></th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach (var patient in patients)
+                            @foreach (var department in departments)
                             {
                                 <tr>
-                                    <td>@patient.FirstName @patient.LastName</td>
-                                    <td>@patient.Email</td>
-                                    <td>@patient.MedicalRecordNumber</td>
-                                    <td><span class="admin-badge">@patient.Status</span></td>
+                                    <td>@department.Name</td>
+                                    <td>@department.Location</td>
                                     <td>
-                                        <button class="admin-btn admin-btn-edit" @onclick="() => EditPatient(patient)">Edit</button>
-                                        <button class="admin-btn admin-btn-delete" @onclick="() => DeletePatient(patient.Id)">Delete</button>
+                                        @if (department.HeadEmployeeName != null)
+                                        {
+                                            @department.HeadEmployeeName
+                                        }
+                                        else
+                                        {
+                                            <span class="admin-muted">&ndash;</span>
+                                        }
+                                    </td>
+                                    <td>
+                                        <button class="admin-btn admin-btn-edit" @onclick="() => EditDepartment(department)">Edit</button>
+                                        <button class="admin-btn admin-btn-delete" @onclick="() => DeleteDepartment(department.Id)">Delete</button>
                                     </td>
                                 </tr>
                             }
@@ -66,41 +73,35 @@
         </div>
 
         <div class="admin-card">
-            <div class="admin-card-heading">@(editingId == null ? "Add New Patient" : $"Editing Patient #{editingId}")</div>
+            <div class="admin-card-heading">@(editingId == null ? "Add New Department" : $"Editing Department #{editingId}")</div>
 
-            <EditForm Model="formModel" OnValidSubmit="SavePatient" FormName="patientForm">
+            <EditForm Model="formModel" OnValidSubmit="SaveDepartment" FormName="departmentForm">
                 <DataAnnotationsValidator />
                 <ValidationSummary />
 
                 <div class="admin-form-grid">
                     <div class="admin-field">
-                        <label>First Name</label>
-                        <InputText class="form-control" @bind-Value="formModel.FirstName" />
+                        <label>Name</label>
+                        <InputText class="form-control" @bind-Value="formModel.Name" />
                     </div>
 
                     <div class="admin-field">
-                        <label>Middle Name</label>
-                        <InputText class="form-control" @bind-Value="formModel.MiddleName" />
+                        <label>Location</label>
+                        <InputText class="form-control" @bind-Value="formModel.Location" />
                     </div>
 
                     <div class="admin-field">
-                        <label>Last Name</label>
-                        <InputText class="form-control" @bind-Value="formModel.LastName" />
-                    </div>
-
-                    <div class="admin-field">
-                        <label>Email</label>
-                        <InputText class="form-control" @bind-Value="formModel.Email" />
-                    </div>
-
-                    <div class="admin-field">
-                        <label>Phone Number</label>
-                        <InputText class="form-control" @bind-Value="formModel.PhoneNumber" />
-                    </div>
-
-                    <div class="admin-field">
-                        <label>Medical Record Number</label>
-                        <InputText class="form-control" @bind-Value="formModel.MedicalRecordNumber" />
+                        <label>Head Employee</label>
+                        <select class="form-select" @bind="headEmployeeIdValue">
+                            <option value="">(none)</option>
+                            @if (employees != null)
+                            {
+                                @foreach (var employee in employees)
+                                {
+                                    <option value="@employee.Id">@employee.FirstName @employee.LastName</option>
+                                }
+                            }
+                        </select>
                     </div>
                 </div>
 
@@ -115,28 +116,32 @@
 </div>
 
 @code {
-    private List<PatientDto>? patients;
-    private PatientDto formModel = new();
+    private List<DepartmentDto>? departments;
+    private List<EmployeeDto>? employees;
+    private DepartmentDto formModel = new();
     private int? editingId;
     private string? errorMessage;
 
-    // Based on the same "Web" preset GetFromJsonAsync/PostAsJsonAsync use by default (case-
-    // insensitive property matching), plus a string enum converter: the API serializes enums
-    // (Status, BloodType, ...) as their name, e.g. "Admitted", not the numeric default.
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerOptions.Web)
     {
         Converters = { new JsonStringEnumConverter() }
     };
 
-    // Not OnInitializedAsync: this component's first render happens during Blazor's static
+    private string headEmployeeIdValue
+    {
+        get => formModel.HeadEmployeeId?.ToString() ?? string.Empty;
+        set => formModel.HeadEmployeeId = string.IsNullOrEmpty(value) ? null : int.Parse(value);
+    }
+
+    // Not OnInitializedAsync — this component's first render happens during Blazor's static
     // SSR pass, before the interactive circuit (and its JS interop) exists. The auth token
-    // lives in protected session storage, which needs that interop, so the API call has to
-    // wait for OnAfterRenderAsync — the first point where the circuit is guaranteed to be up.
+    // lives in protected session storage, which needs that interop.
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            await LoadPatients();
+            await LoadDepartments();
+            await LoadEmployees();
             StateHasChanged();
         }
     }
@@ -152,16 +157,29 @@
         return client;
     }
 
-    private async Task LoadPatients()
+    private async Task LoadDepartments()
     {
         var client = await CreateAuthorizedClientAsync();
         try
         {
-            patients = await client.GetFromJsonAsync<List<PatientDto>>("api/patients", JsonOptions);
+            departments = await client.GetFromJsonAsync<List<DepartmentDto>>("api/department", JsonOptions);
         }
         catch (Exception ex)
         {
-            errorMessage = $"Failed to load patients: {ex.Message}";
+            errorMessage = $"Failed to load departments: {ex.Message}";
+        }
+    }
+
+    private async Task LoadEmployees()
+    {
+        var client = await CreateAuthorizedClientAsync();
+        try
+        {
+            employees = await client.GetFromJsonAsync<List<EmployeeDto>>("api/employee", JsonOptions);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load employees: {ex.Message}";
         }
     }
 
@@ -185,30 +203,25 @@
 
     private record ApiErrorResponse(string? Message);
 
-    private void EditPatient(PatientDto patient)
+    private void EditDepartment(DepartmentDto department)
     {
-        editingId = patient.Id;
-        formModel = new PatientDto
+        editingId = department.Id;
+        formModel = new DepartmentDto
         {
-            Id = patient.Id,
-            FirstName = patient.FirstName,
-            MiddleName = patient.MiddleName,
-            LastName = patient.LastName,
-            Email = patient.Email,
-            PhoneNumber = patient.PhoneNumber,
-            MedicalRecordNumber = patient.MedicalRecordNumber,
-            DateOfBirth = patient.DateOfBirth,
-            Status = patient.Status
+            Id = department.Id,
+            Name = department.Name,
+            Location = department.Location,
+            HeadEmployeeId = department.HeadEmployeeId
         };
     }
 
     private void CancelEdit()
     {
         editingId = null;
-        formModel = new PatientDto();
+        formModel = new DepartmentDto();
     }
 
-    private async Task SavePatient()
+    private async Task SaveDepartment()
     {
         var client = await CreateAuthorizedClientAsync();
         errorMessage = null;
@@ -217,26 +230,26 @@
         {
             if (editingId == null)
             {
-                var response = await client.PostAsJsonAsync("api/patients", formModel, JsonOptions);
+                var response = await client.PostAsJsonAsync("api/department", formModel, JsonOptions);
                 if (!response.IsSuccessStatusCode)
                 {
-                    errorMessage = await ExtractErrorMessageAsync(response, "Create failed");
+                    errorMessage = $"Create failed: {response.StatusCode}";
                     return;
                 }
             }
             else
             {
-                var response = await client.PutAsJsonAsync($"api/patients/{editingId}", formModel, JsonOptions);
+                var response = await client.PutAsJsonAsync($"api/department/{editingId}", formModel, JsonOptions);
                 if (!response.IsSuccessStatusCode)
                 {
-                    errorMessage = await ExtractErrorMessageAsync(response, "Update failed");
+                    errorMessage = $"Update failed: {response.StatusCode}";
                     return;
                 }
             }
 
-            formModel = new PatientDto();
+            formModel = new DepartmentDto();
             editingId = null;
-            await LoadPatients();
+            await LoadDepartments();
         }
         catch (Exception ex)
         {
@@ -244,19 +257,19 @@
         }
     }
 
-    private async Task DeletePatient(int id)
+    private async Task DeleteDepartment(int id)
     {
         var client = await CreateAuthorizedClientAsync();
         errorMessage = null;
         try
         {
-            var response = await client.DeleteAsync($"api/patients/{id}");
+            var response = await client.DeleteAsync($"api/department/{id}");
             if (!response.IsSuccessStatusCode)
             {
                 errorMessage = await ExtractErrorMessageAsync(response, "Delete failed");
                 return;
             }
-            await LoadPatients();
+            await LoadDepartments();
         }
         catch (Exception ex)
         {

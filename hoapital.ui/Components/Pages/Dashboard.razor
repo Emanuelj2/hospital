@@ -77,6 +77,23 @@
                             <div class="dash-card-text">View your appointments, prescriptions, and lab results.</div>
                         </div>
                     </AuthorizeView>
+
+                    <!-- Admins only -->
+                    <AuthorizeView Roles="Admin" Context="adminContext">
+                        <div class="dash-card">
+                            <div class="dash-card-icon">E</div>
+                            <div class="dash-card-title">Employee Management</div>
+                            <div class="dash-card-text">Manage staff records and provision staff logins.</div>
+                            <a class="dash-card-btn" href="/admin/employees">Manage Employees</a>
+                        </div>
+
+                        <div class="dash-card">
+                            <div class="dash-card-icon">D</div>
+                            <div class="dash-card-title">Department Management</div>
+                            <div class="dash-card-text">Manage hospital departments and their heads.</div>
+                            <a class="dash-card-btn" href="/admin/departments">Manage Departments</a>
+                        </div>
+                    </AuthorizeView>
                 </div>
             </Authorized>
         </AuthorizeView>
