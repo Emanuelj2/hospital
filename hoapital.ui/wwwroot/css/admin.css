@@ -1,0 +1,200 @@
+.admin-body {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 3rem 1.5rem;
+}
+
+.admin-breadcrumb {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 0.85rem;
+    color: #4f8fae;
+    text-decoration: none;
+    font-weight: 600;
+    margin-bottom: 1rem;
+}
+
+    .admin-breadcrumb:hover {
+        text-decoration: underline;
+    }
+
+.admin-card {
+    background: white;
+    border-radius: 14px;
+    padding: 1.75rem;
+    box-shadow: 0 10px 30px rgba(30, 41, 59, 0.08);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+    .admin-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #4fae8f, #4f8fae);
+    }
+
+.admin-card-heading {
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #1f2d3d;
+    margin-bottom: 1.25rem;
+}
+
+/* Table */
+.admin-table-wrap {
+    overflow-x: auto;
+}
+
+.admin-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+    .admin-table th {
+        text-align: left;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: #6b7c93;
+        font-weight: 700;
+        padding: 0.6rem 0.9rem;
+        border-bottom: 2px solid #eef3f2;
+        white-space: nowrap;
+    }
+
+    .admin-table td {
+        padding: 0.8rem 0.9rem;
+        font-size: 0.9rem;
+        color: #1f2d3d;
+        border-bottom: 1px solid #eef3f2;
+    }
+
+    .admin-table tbody tr:last-child td {
+        border-bottom: none;
+    }
+
+    .admin-table tbody tr:hover {
+        background: #f7fafc;
+    }
+
+    .admin-table td:last-child {
+        text-align: right;
+        white-space: nowrap;
+    }
+
+.admin-empty {
+    padding: 1.5rem 0;
+    text-align: center;
+    color: #6b7c93;
+    font-size: 0.9rem;
+}
+
+.admin-muted {
+    color: #9aa7ba;
+}
+
+/* Buttons */
+.admin-btn {
+    border: none;
+    border-radius: 8px;
+    padding: 0.4rem 0.85rem;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    margin-left: 0.4rem;
+}
+
+.admin-btn-primary {
+    background: linear-gradient(90deg, #4fae8f, #4f8fae);
+    color: white;
+    padding: 0.65rem 1.3rem;
+    font-size: 0.9rem;
+    margin-left: 0;
+}
+
+    .admin-btn-primary:hover {
+        opacity: 0.92;
+    }
+
+.admin-btn-edit {
+    background: #eef3f2;
+    color: #33445a;
+}
+
+    .admin-btn-edit:hover {
+        background: #e2e8f0;
+    }
+
+.admin-btn-delete {
+    background: #fef2f2;
+    color: #b91c1c;
+}
+
+    .admin-btn-delete:hover {
+        background: #fee2e2;
+    }
+
+.admin-btn-cancel {
+    background: white;
+    border: 1px solid #e2e8f0;
+    color: #6b7c93;
+    padding: 0.65rem 1.3rem;
+    font-size: 0.9rem;
+}
+
+/* Form */
+.admin-form-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 1rem 1.25rem;
+    margin-bottom: 1.5rem;
+}
+
+.admin-field label {
+    display: block;
+    font-size: 0.82rem;
+    font-weight: 600;
+    color: #33445a;
+    margin-bottom: 0.35rem;
+}
+
+.admin-field .form-control,
+.admin-field .form-select,
+.admin-field select,
+.admin-field input {
+    width: 100%;
+    background: #f4f7f9;
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    padding: 0.6rem 0.8rem;
+    font-size: 0.9rem;
+    color: #1f2d3d;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+    .admin-field .form-control:focus,
+    .admin-field .form-select:focus,
+    .admin-field select:focus,
+    .admin-field input:focus {
+        outline: none;
+        border-color: #4f8fae;
+        box-shadow: 0 0 0 3px rgba(79, 143, 174, 0.15);
+        background: #ffffff;
+    }
+
+.admin-badge {
+    display: inline-block;
+    padding: 0.2rem 0.6rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: #eef3f2;
+    color: #33445a;
+}

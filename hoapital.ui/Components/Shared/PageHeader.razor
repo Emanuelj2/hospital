@@ -1,0 +1,34 @@
+@using hoapital.ui.Auth
+@using Microsoft.AspNetCore.Components.Authorization
+@inject CustomAuthStateProvider CustomAuthState
+@inject NavigationManager Navigation
+
+<div class="dash-header">
+    <div class="dash-header-left">
+        <div class="dash-brand-icon">+</div>
+        <div>
+            <div class="dash-brand-name">MediHealth</div>
+            <div class="dash-brand-tag">STAFF PORTAL</div>
+        </div>
+    </div>
+
+    <AuthorizeView>
+        <Authorized>
+            <div style="display:flex; align-items:center;">
+                <div class="dash-welcome">
+                    <div class="dash-welcome-name">@context.User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value</div>
+                    <div class="dash-welcome-role">@context.User.FindFirst(System.Security.Claims.ClaimTypes.Role)?.Value</div>
+                </div>
+                <button class="dash-logout" @onclick="HandleLogout">Log out</button>
+            </div>
+        </Authorized>
+    </AuthorizeView>
+</div>
+
+@code {
+    private async Task HandleLogout()
+    {
+        await CustomAuthState.MarkUserAsLoggedOut();
+        Navigation.NavigateTo("/", forceLoad: true);
+    }
+}

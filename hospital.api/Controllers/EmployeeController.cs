@@ -84,6 +84,22 @@ namespace hospital.api.Controllers
             return CreatedAtAction(nameof(GetById), new { id = createdEmployee.Id }, createdEmployee);
         }
 
+        // Creates the Employee record and its login (UserAccount) together — the normal way
+        // an admin provisions staff, since public self-registration only allows Patient.
+        [HttpPost("with-account")]
+        public async Task<ActionResult<EmployeeDto>> CreateWithAccount(CreateStaffAccountDto request)
+        {
+            try
+            {
+                var createdEmployee = await mediator.Send(new CreateEmployeeWithAccountCommand(request.Employee, request.Password, request.Role));
+                return CreatedAtAction(nameof(GetById), new { id = createdEmployee.Id }, createdEmployee);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpPut("{id}")]
         public async Task<ActionResult<EmployeeDto>> Update(int id, EmployeeDto employeeDto)
         {
