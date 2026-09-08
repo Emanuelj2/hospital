@@ -1,8 +1,9 @@
-﻿using hospital.application.Interfaces;
+using hospital.application.Employees;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using hospital.application.DTOs;
 using hospital.application.Exceptions;
+using MediatR;
 
 namespace hospital.api.Controllers
 {
@@ -11,17 +12,17 @@ namespace hospital.api.Controllers
     [Authorize(Roles = "Admin")]
     public class EmployeeController : ControllerBase
     {
-        private readonly IEmployeeService employeeService;
+        private readonly IMediator mediator;
 
-        public EmployeeController(IEmployeeService employeeService)
+        public EmployeeController(IMediator mediator)
         {
-            this.employeeService = employeeService;
+            this.mediator = mediator;
         }
 
         [HttpGet]
         public async Task<ActionResult<List<EmployeeDto>>> GetAll()
         {
-            var employees = await employeeService.GetAllAsync();
+            var employees = await mediator.Send(new GetAllEmployeesQuery());
             return Ok(employees);
         }
 
@@ -30,10 +31,10 @@ namespace hospital.api.Controllers
         {
             try
             {
-                var employee = await employeeService.GetByIdAsync(id);
+                var employee = await mediator.Send(new GetEmployeeByIdQuery(id));
                 return Ok(employee);
             }
-            catch (Exception ex)
+            catch (NotFoundException ex)
             {
                 return NotFound(ex.Message);
             }
@@ -42,7 +43,7 @@ namespace hospital.api.Controllers
         [HttpGet("email/{email}")]
         public async Task<ActionResult<EmployeeDto>> GetByEmail(string email)
         {
-            var employee = await employeeService.GetByEmailAsync(email);
+            var employee = await mediator.Send(new GetEmployeeByEmailQuery(email));
             if (employee == null)
             {
                 return NotFound($"Employee with email {email} not found.");
@@ -53,21 +54,21 @@ namespace hospital.api.Controllers
         [HttpGet("firstname/{firstName}")]
         public async Task<ActionResult<List<EmployeeDto>>> GetByFirstName(string firstName)
         {
-            var employees = await employeeService.GetByFirstNameAsync(firstName);
+            var employees = await mediator.Send(new GetEmployeesByFirstNameQuery(firstName));
             return Ok(employees);
         }
 
         [HttpGet("lastname/{lastName}")]
         public async Task<ActionResult<List<EmployeeDto>>> GetByLastName(string lastName)
         {
-            var employees = await employeeService.GetByLastNameAsync(lastName);
+            var employees = await mediator.Send(new GetEmployeesByLastNameQuery(lastName));
             return Ok(employees);
         }
 
         [HttpGet("phone/{phoneNumber}")]
         public async Task<ActionResult<EmployeeDto>> GetByPhoneNumber(string phoneNumber)
         {
-            var employee = await employeeService.GetByPhoneNumberAsync(phoneNumber);
+            var employee = await mediator.Send(new GetEmployeeByPhoneNumberQuery(phoneNumber));
             if (employee == null)
             {
                 return NotFound($"Employee with phone number {phoneNumber} not found.");
@@ -79,7 +80,7 @@ namespace hospital.api.Controllers
         [HttpPost]
         public async Task<ActionResult<EmployeeDto>> Create(EmployeeDto employeeDto)
         {
-            var createdEmployee = await employeeService.CreateAsync(employeeDto);
+            var createdEmployee = await mediator.Send(new CreateEmployeeCommand(employeeDto));
             return CreatedAtAction(nameof(GetById), new { id = createdEmployee.Id }, createdEmployee);
         }
 
@@ -88,7 +89,7 @@ namespace hospital.api.Controllers
         {
             try
             {
-                await employeeService.UpdateAsync(id, employeeDto);
+                await mediator.Send(new UpdateEmployeeCommand(id, employeeDto));
                 return NoContent();
             }
             catch (NotFoundException)
@@ -102,7 +103,7 @@ namespace hospital.api.Controllers
         {
             try
             {
-                await employeeService.DeleteAsync(id);
+                await mediator.Send(new DeleteEmployeeCommand(id));
                 return Ok();
             }
             catch (NotFoundException)

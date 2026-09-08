@@ -25,16 +25,15 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddDbContext<HospitalDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
-//services
+//repositories
 builder.Services.AddScoped<IPatientRepository, PatientRepository>();
-builder.Services.AddScoped<IPatientService, PatientService>();
 builder.Services.AddScoped<IEmployeeRepository, EmployeeRepository>();
-builder.Services.AddScoped<IEmployeeService, EmployeeService>();
-
-//authServices
 builder.Services.AddScoped<IUserAccountRepository, UserAccountRepository>();
-builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<ITokenService, TokenService>();
+
+// Controllers send Commands/Queries via IMediator; handlers live in hospital.application
+// (Patients/, Employees/, Auth/) and talk to the repositories directly.
+builder.Services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(hospital.application.Patients.GetAllPatientsQuery).Assembly));
 
 //jwtAthentication
 var jwtKey = builder.Configuration["Jwt:Key"]

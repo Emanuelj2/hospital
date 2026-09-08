@@ -1,21 +1,26 @@
-﻿using hospital.application.DTOs;
-using hospital.application.Interfaces;
+using hospital.application.DTOs;
+using hospital.application.Exceptions;
+using hospital.application.Patients;
+using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace hospital.api.Controllers
 {
+    // Rewritten with MediatR as a demonstration slice — the controller sends a
+    // Command/Query and no longer knows how it's fulfilled. Compare against
+    // EmployeeController/PatientService for the "before" version of this pattern.
     [Route("api/[controller]")]
     [ApiController]
     [Authorize(Roles = "Employee,Doctor,Admin")]
     public class PatientsController : Controller
     {
-        private readonly IPatientService patientService;
+        private readonly IMediator mediator;
 
         #region // Constructor
-        public PatientsController(IPatientService patientService)
+        public PatientsController(IMediator mediator)
         {
-            this.patientService = patientService;
+            this.mediator = mediator;
         }
         #endregion
 
@@ -23,7 +28,7 @@ namespace hospital.api.Controllers
         [HttpGet]
         public async Task<ActionResult<List<PatientDto>>> GetAll()
         {
-            var patients = await patientService.GetAllAsync();
+            var patients = await mediator.Send(new GetAllPatientsQuery());
             return Ok(patients);
         }
 
@@ -33,10 +38,10 @@ namespace hospital.api.Controllers
         {
             try
             {
-                var patient = await patientService.GetByIdAsync(id);
+                var patient = await mediator.Send(new GetPatientByIdQuery(id));
                 return Ok(patient);
             }
-            catch (Exception ex)
+            catch (NotFoundException ex)
             {
                 return NotFound(ex.Message);
             }
@@ -46,7 +51,7 @@ namespace hospital.api.Controllers
         [HttpPost]
         public async Task<ActionResult<PatientDto>> Create(PatientDto patientDto)
         {
-            var createdPatient = await patientService.CreateAsync(patientDto);
+            var createdPatient = await mediator.Send(new CreatePatientCommand(patientDto));
             return CreatedAtAction(nameof(GetById), new { id = createdPatient.Id }, createdPatient);
         }
 
@@ -56,14 +61,13 @@ namespace hospital.api.Controllers
         {
             try
             {
-                await patientService.UpdateAsync(id, patientDto);
+                await mediator.Send(new UpdatePatientCommand(id, patientDto));
                 return NoContent();
             }
-            catch
-            { 
-                return NotFound(); 
+            catch (NotFoundException)
+            {
+                return NotFound();
             }
-
         }
 
 
@@ -72,10 +76,10 @@ namespace hospital.api.Controllers
         {
             try
             {
-                await patientService.DeleteAsync(id);
+                await mediator.Send(new DeletePatientCommand(id));
                 return NoContent();
             }
-            catch
+            catch (NotFoundException)
             {
                 return NotFound();
             }
