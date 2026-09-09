@@ -16,10 +16,10 @@ namespace hospital.infrastructure.Repositories
         }
 
         public async Task<List<Employee>> GetAllAsync() =>
-            await hospitalDb.Employees.ToListAsync();
+            await hospitalDb.Employees.Include(e => e.UserAccount).ToListAsync();
 
         public async Task<Employee?> GetByIdAsync(int employeeId) =>
-            await hospitalDb.Employees.FindAsync(employeeId);
+            await hospitalDb.Employees.Include(e => e.UserAccount).FirstOrDefaultAsync(e => e.Id == employeeId);
 
         public async Task<List<Employee>> GetByFirstNameAsync(string firstName) =>
             await hospitalDb.Employees

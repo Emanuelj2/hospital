@@ -24,100 +24,163 @@
         }
 
         <div class="admin-card">
-            @if (patients == null)
+            <div class="admin-tabs">
+                <button class="admin-tab @(activeTab == "list" ? "active" : "")" @onclick='() => SwitchTab("list")'>All Patients</button>
+                <button class="admin-tab @(activeTab == "form" ? "active" : "")" @onclick='() => SwitchTab("form")'>@(editingId == null ? "Add New Patient" : $"Editing Patient #{editingId}")</button>
+            </div>
+
+            @if (activeTab == "list")
             {
-                <div class="admin-empty">Loading...</div>
-            }
-            else if (patients.Count == 0)
-            {
-                <div class="admin-empty">No patients yet — add one below.</div>
+                @if (patients == null)
+                {
+                    <div class="admin-empty">Loading...</div>
+                }
+                else if (patients.Count == 0)
+                {
+                    <div class="admin-empty">No patients yet — add one from the tab above.</div>
+                }
+                else
+                {
+                    <div class="admin-table-wrap">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Email</th>
+                                    <th>Medical Record #</th>
+                                    <th>Status</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var patient in patients)
+                                {
+                                    <tr @onclick="() => ShowDetails(patient)">
+                                        <td>@patient.FirstName @patient.LastName</td>
+                                        <td>@patient.Email</td>
+                                        <td>@patient.MedicalRecordNumber</td>
+                                        <td><span class="admin-badge">@patient.Status</span></td>
+                                        <td>
+                                            <button class="admin-btn admin-btn-edit" @onclick="() => EditPatient(patient)" @onclick:stopPropagation="true">Edit</button>
+                                            <button class="admin-btn admin-btn-delete" @onclick="() => DeletePatient(patient.Id)" @onclick:stopPropagation="true">Delete</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             }
             else
             {
-                <div class="admin-table-wrap">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Email</th>
-                                <th>Medical Record #</th>
-                                <th>Status</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var patient in patients)
-                            {
-                                <tr>
-                                    <td>@patient.FirstName @patient.LastName</td>
-                                    <td>@patient.Email</td>
-                                    <td>@patient.MedicalRecordNumber</td>
-                                    <td><span class="admin-badge">@patient.Status</span></td>
-                                    <td>
-                                        <button class="admin-btn admin-btn-edit" @onclick="() => EditPatient(patient)">Edit</button>
-                                        <button class="admin-btn admin-btn-delete" @onclick="() => DeletePatient(patient.Id)">Delete</button>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
+                <EditForm Model="formModel" OnValidSubmit="SavePatient" FormName="patientForm">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="admin-form-grid">
+                        <div class="admin-field">
+                            <label>First Name</label>
+                            <InputText class="form-control" @bind-Value="formModel.FirstName" />
+                        </div>
+
+                        <div class="admin-field">
+                            <label>Middle Name</label>
+                            <InputText class="form-control" @bind-Value="formModel.MiddleName" />
+                        </div>
+
+                        <div class="admin-field">
+                            <label>Last Name</label>
+                            <InputText class="form-control" @bind-Value="formModel.LastName" />
+                        </div>
+
+                        <div class="admin-field">
+                            <label>Email</label>
+                            <InputText class="form-control" @bind-Value="formModel.Email" />
+                        </div>
+
+                        <div class="admin-field">
+                            <label>Phone Number</label>
+                            <InputText class="form-control" @bind-Value="formModel.PhoneNumber" />
+                        </div>
+
+                        <div class="admin-field">
+                            <label>Medical Record Number</label>
+                            <InputText class="form-control" @bind-Value="formModel.MedicalRecordNumber" />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="admin-btn admin-btn-primary">Save</button>
+                    @if (editingId != null)
+                    {
+                        <button type="button" class="admin-btn admin-btn-cancel" @onclick="CancelEdit">Cancel</button>
+                    }
+                </EditForm>
             }
-        </div>
-
-        <div class="admin-card">
-            <div class="admin-card-heading">@(editingId == null ? "Add New Patient" : $"Editing Patient #{editingId}")</div>
-
-            <EditForm Model="formModel" OnValidSubmit="SavePatient" FormName="patientForm">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
-
-                <div class="admin-form-grid">
-                    <div class="admin-field">
-                        <label>First Name</label>
-                        <InputText class="form-control" @bind-Value="formModel.FirstName" />
-                    </div>
-
-                    <div class="admin-field">
-                        <label>Middle Name</label>
-                        <InputText class="form-control" @bind-Value="formModel.MiddleName" />
-                    </div>
-
-                    <div class="admin-field">
-                        <label>Last Name</label>
-                        <InputText class="form-control" @bind-Value="formModel.LastName" />
-                    </div>
-
-                    <div class="admin-field">
-                        <label>Email</label>
-                        <InputText class="form-control" @bind-Value="formModel.Email" />
-                    </div>
-
-                    <div class="admin-field">
-                        <label>Phone Number</label>
-                        <InputText class="form-control" @bind-Value="formModel.PhoneNumber" />
-                    </div>
-
-                    <div class="admin-field">
-                        <label>Medical Record Number</label>
-                        <InputText class="form-control" @bind-Value="formModel.MedicalRecordNumber" />
-                    </div>
-                </div>
-
-                <button type="submit" class="admin-btn admin-btn-primary">Save</button>
-                @if (editingId != null)
-                {
-                    <button type="button" class="admin-btn admin-btn-cancel" @onclick="CancelEdit">Cancel</button>
-                }
-            </EditForm>
         </div>
     </div>
 </div>
 
+@if (selectedPatient != null)
+{
+    <div class="admin-modal-backdrop" @onclick="CloseDetails">
+        <div class="admin-modal" @onclick:stopPropagation="true">
+            <div class="admin-modal-topbar"></div>
+            <div class="admin-modal-header">
+                <div>
+                    <div class="admin-modal-title">@selectedPatient.FirstName @selectedPatient.LastName</div>
+                    <div class="admin-modal-subtitle">MRN @selectedPatient.MedicalRecordNumber</div>
+                </div>
+                <button class="admin-modal-close" @onclick="CloseDetails">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <div class="admin-detail-section-title">Contact</div>
+                <div class="admin-detail-grid">
+                    <div class="admin-detail-item"><label>Email</label><div class="value">@selectedPatient.Email</div></div>
+                    <div class="admin-detail-item"><label>Phone</label><div class="value">@selectedPatient.PhoneNumber</div></div>
+                    <div class="admin-detail-item"><label>Date of Birth</label><div class="value">@selectedPatient.DateOfBirth.ToString("yyyy-MM-dd")</div></div>
+                    <div class="admin-detail-item"><label>Gender</label><div class="value">@(string.IsNullOrEmpty(selectedPatient.Gender) ? "—" : selectedPatient.Gender)</div></div>
+                    <div class="admin-detail-item"><label>Address</label><div class="value">@FormatAddress(selectedPatient)</div></div>
+                </div>
+
+                <div class="admin-detail-section-title">Admission</div>
+                <div class="admin-detail-grid">
+                    <div class="admin-detail-item"><label>Status</label><div class="value">@selectedPatient.Status</div></div>
+                    <div class="admin-detail-item"><label>Admission Date</label><div class="value">@selectedPatient.AdmissionDate.ToString("yyyy-MM-dd")</div></div>
+                    <div class="admin-detail-item"><label>Discharge Date</label><div class="value">@(selectedPatient.DischargeDate?.ToString("yyyy-MM-dd") ?? "—")</div></div>
+                    <div class="admin-detail-item"><label>Room</label><div class="value">@(selectedPatient.RoomNumber ?? "—")</div></div>
+                    <div class="admin-detail-item"><label>Department</label><div class="value">@DepartmentName(selectedPatient.DepartmentId)</div></div>
+                    <div class="admin-detail-item"><label>Assigned Doctor</label><div class="value">@DoctorName(selectedPatient.AssignedDoctorId)</div></div>
+                </div>
+
+                <div class="admin-detail-section-title">Medical</div>
+                <div class="admin-detail-grid">
+                    <div class="admin-detail-item"><label>Blood Type</label><div class="value">@selectedPatient.BloodType</div></div>
+                    <div class="admin-detail-item"><label>Allergies</label><div class="value">@(selectedPatient.Allergies.Count > 0 ? string.Join(", ", selectedPatient.Allergies) : "—")</div></div>
+                    <div class="admin-detail-item"><label>Primary Diagnosis</label><div class="value">@(selectedPatient.PrimaryDiagnosis ?? "—")</div></div>
+                </div>
+
+                <div class="admin-detail-section-title">Insurance</div>
+                <div class="admin-detail-grid">
+                    <div class="admin-detail-item"><label>Provider</label><div class="value">@(string.IsNullOrEmpty(selectedPatient.InsuranceProvider) ? "—" : selectedPatient.InsuranceProvider)</div></div>
+                    <div class="admin-detail-item"><label>Policy Number</label><div class="value">@(string.IsNullOrEmpty(selectedPatient.InsurancePolicyNumber) ? "—" : selectedPatient.InsurancePolicyNumber)</div></div>
+                </div>
+            </div>
+            <div class="admin-modal-footer">
+                <button class="admin-btn admin-btn-edit" @onclick="() => { EditPatient(selectedPatient); CloseDetails(); }">Edit</button>
+                <button class="admin-btn admin-btn-cancel" @onclick="CloseDetails">Close</button>
+            </div>
+        </div>
+    </div>
+}
+
 @code {
     private List<PatientDto>? patients;
+    private List<EmployeeDto>? employees;
+    private List<DepartmentDto>? departments;
     private PatientDto formModel = new();
+    private PatientDto? selectedPatient;
     private int? editingId;
+    private string activeTab = "list";
     private string? errorMessage;
 
     // Based on the same "Web" preset GetFromJsonAsync/PostAsJsonAsync use by default (case-
@@ -128,6 +191,8 @@
         Converters = { new JsonStringEnumConverter() }
     };
 
+    private void SwitchTab(string tab) => activeTab = tab;
+
     // Not OnInitializedAsync: this component's first render happens during Blazor's static
     // SSR pass, before the interactive circuit (and its JS interop) exists. The auth token
     // lives in protected session storage, which needs that interop, so the API call has to
@@ -137,6 +202,8 @@
         if (firstRender)
         {
             await LoadPatients();
+            await LoadEmployees();
+            await LoadDepartments();
             StateHasChanged();
         }
     }
@@ -165,6 +232,49 @@
         }
     }
 
+    private async Task LoadEmployees()
+    {
+        var client = await CreateAuthorizedClientAsync();
+        try
+        {
+            employees = await client.GetFromJsonAsync<List<EmployeeDto>>("api/employee", JsonOptions);
+        }
+        catch (Exception)
+        {
+            // Non-fatal for this page — doctor names in the detail view just fall back to "—".
+        }
+    }
+
+    private async Task LoadDepartments()
+    {
+        var client = await CreateAuthorizedClientAsync();
+        try
+        {
+            departments = await client.GetFromJsonAsync<List<DepartmentDto>>("api/department", JsonOptions);
+        }
+        catch (Exception)
+        {
+            // Non-fatal for this page — department names in the detail view just fall back to "—".
+        }
+    }
+
+    private string DepartmentName(int? departmentId) =>
+        departments?.FirstOrDefault(d => d.Id == departmentId)?.Name ?? "—";
+
+    private string DoctorName(int? doctorId)
+    {
+        var doctor = employees?.FirstOrDefault(e => e.Id == doctorId);
+        return doctor == null ? "—" : $"{doctor.FirstName} {doctor.LastName}";
+    }
+
+    private static string FormatAddress(PatientDto patient)
+    {
+        var parts = new[] { patient.Address, patient.City, patient.State, patient.ZipCode, patient.Country }
+            .Where(p => !string.IsNullOrWhiteSpace(p));
+        var joined = string.Join(", ", parts);
+        return string.IsNullOrEmpty(joined) ? "—" : joined;
+    }
+
     private static async Task<string> ExtractErrorMessageAsync(HttpResponseMessage response, string fallbackPrefix)
     {
         try
@@ -185,6 +295,10 @@
 
     private record ApiErrorResponse(string? Message);
 
+    private void ShowDetails(PatientDto patient) => selectedPatient = patient;
+
+    private void CloseDetails() => selectedPatient = null;
+
     private void EditPatient(PatientDto patient)
     {
         editingId = patient.Id;
@@ -200,12 +314,14 @@
             DateOfBirth = patient.DateOfBirth,
             Status = patient.Status
         };
+        activeTab = "form";
     }
 
     private void CancelEdit()
     {
         editingId = null;
         formModel = new PatientDto();
+        activeTab = "list";
     }
 
     private async Task SavePatient()
@@ -236,6 +352,7 @@
 
             formModel = new PatientDto();
             editingId = null;
+            activeTab = "list";
             await LoadPatients();
         }
         catch (Exception ex)

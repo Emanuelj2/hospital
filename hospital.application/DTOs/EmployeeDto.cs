@@ -26,6 +26,10 @@ namespace hospital.application.DTOs
         // Link to login/account record
         public int? UserAccountId { get; set; }
 
+        // The linked UserAccount's role (Employee/Doctor/Admin) — null if there's no login.
+        // This is what actually controls access, distinct from AccessLevel below.
+        public string? Role { get; set; }
+
         public string StateLicenceNumber { get; set; } = string.Empty;
 
         public decimal Salary { get; set; }

@@ -21,6 +21,7 @@ namespace hospital.application.Employees
             ZipCode = e.ZipCode,
             Country = e.Country,
             UserAccountId = e.UserAccountId,
+            Role = e.UserAccount?.Role.ToString(),
             StateLicenceNumber = e.StateLicenceNumber,
             Salary = e.Salary,
             HireDate = e.HireDate,

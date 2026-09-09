@@ -33,5 +33,12 @@ namespace hospital.infrastructure.Repositories
 
         public async Task<UserAccount?> GetByIdAsync(int id) =>
             await hospitalDbContext.UserAccounts.FindAsync(id);
+
+
+        public async Task UpdateAsync(UserAccount userAccount)
+        {
+            hospitalDbContext.UserAccounts.Update(userAccount);
+            await hospitalDbContext.SaveChangesAsync();
+        }
     }
 }

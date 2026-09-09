@@ -24,102 +24,142 @@
         }
 
         <div class="admin-card">
-            @if (departments == null)
+            <div class="admin-tabs">
+                <button class="admin-tab @(activeTab == "list" ? "active" : "")" @onclick='() => SwitchTab("list")'>All Departments</button>
+                <button class="admin-tab @(activeTab == "form" ? "active" : "")" @onclick='() => SwitchTab("form")'>@(editingId == null ? "Add New Department" : $"Editing Department #{editingId}")</button>
+            </div>
+
+            @if (activeTab == "list")
             {
-                <div class="admin-empty">Loading...</div>
-            }
-            else if (departments.Count == 0)
-            {
-                <div class="admin-empty">No departments yet — add one below.</div>
+                @if (departments == null)
+                {
+                    <div class="admin-empty">Loading...</div>
+                }
+                else if (departments.Count == 0)
+                {
+                    <div class="admin-empty">No departments yet — add one from the tab above.</div>
+                }
+                else
+                {
+                    <div class="admin-table-wrap">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>Name</th>
+                                    <th>Location</th>
+                                    <th>Head</th>
+                                    <th></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var department in departments)
+                                {
+                                    <tr @onclick="() => ShowDetails(department)">
+                                        <td>@department.Name</td>
+                                        <td>@department.Location</td>
+                                        <td>
+                                            @if (department.HeadEmployeeName != null)
+                                            {
+                                                @department.HeadEmployeeName
+                                            }
+                                            else
+                                            {
+                                                <span class="admin-muted">&ndash;</span>
+                                            }
+                                        </td>
+                                        <td>
+                                            <button class="admin-btn admin-btn-edit" @onclick="() => EditDepartment(department)" @onclick:stopPropagation="true">Edit</button>
+                                            <button class="admin-btn admin-btn-delete" @onclick="() => DeleteDepartment(department.Id)" @onclick:stopPropagation="true">Delete</button>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
             }
             else
             {
-                <div class="admin-table-wrap">
-                    <table class="admin-table">
-                        <thead>
-                            <tr>
-                                <th>Name</th>
-                                <th>Location</th>
-                                <th>Head</th>
-                                <th></th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            @foreach (var department in departments)
-                            {
-                                <tr>
-                                    <td>@department.Name</td>
-                                    <td>@department.Location</td>
-                                    <td>
-                                        @if (department.HeadEmployeeName != null)
-                                        {
-                                            @department.HeadEmployeeName
-                                        }
-                                        else
-                                        {
-                                            <span class="admin-muted">&ndash;</span>
-                                        }
-                                    </td>
-                                    <td>
-                                        <button class="admin-btn admin-btn-edit" @onclick="() => EditDepartment(department)">Edit</button>
-                                        <button class="admin-btn admin-btn-delete" @onclick="() => DeleteDepartment(department.Id)">Delete</button>
-                                    </td>
-                                </tr>
-                            }
-                        </tbody>
-                    </table>
-                </div>
-            }
-        </div>
+                <EditForm Model="formModel" OnValidSubmit="SaveDepartment" FormName="departmentForm">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
 
-        <div class="admin-card">
-            <div class="admin-card-heading">@(editingId == null ? "Add New Department" : $"Editing Department #{editingId}")</div>
+                    <div class="admin-form-grid">
+                        <div class="admin-field">
+                            <label>Name</label>
+                            <InputText class="form-control" @bind-Value="formModel.Name" />
+                        </div>
 
-            <EditForm Model="formModel" OnValidSubmit="SaveDepartment" FormName="departmentForm">
-                <DataAnnotationsValidator />
-                <ValidationSummary />
+                        <div class="admin-field">
+                            <label>Location</label>
+                            <InputText class="form-control" @bind-Value="formModel.Location" />
+                        </div>
 
-                <div class="admin-form-grid">
-                    <div class="admin-field">
-                        <label>Name</label>
-                        <InputText class="form-control" @bind-Value="formModel.Name" />
-                    </div>
-
-                    <div class="admin-field">
-                        <label>Location</label>
-                        <InputText class="form-control" @bind-Value="formModel.Location" />
-                    </div>
-
-                    <div class="admin-field">
-                        <label>Head Employee</label>
-                        <select class="form-select" @bind="headEmployeeIdValue">
-                            <option value="">(none)</option>
-                            @if (employees != null)
-                            {
-                                @foreach (var employee in employees)
+                        <div class="admin-field">
+                            <label>Head Employee</label>
+                            <select class="form-select" @bind="headEmployeeIdValue">
+                                <option value="">(none)</option>
+                                @if (employees != null)
                                 {
-                                    <option value="@employee.Id">@employee.FirstName @employee.LastName</option>
+                                    @foreach (var employee in employees)
+                                    {
+                                        <option value="@employee.Id">@employee.FirstName @employee.LastName</option>
+                                    }
                                 }
-                            }
-                        </select>
+                            </select>
+                        </div>
                     </div>
-                </div>
 
-                <button type="submit" class="admin-btn admin-btn-primary">Save</button>
-                @if (editingId != null)
-                {
-                    <button type="button" class="admin-btn admin-btn-cancel" @onclick="CancelEdit">Cancel</button>
-                }
-            </EditForm>
+                    <button type="submit" class="admin-btn admin-btn-primary">Save</button>
+                    @if (editingId != null)
+                    {
+                        <button type="button" class="admin-btn admin-btn-cancel" @onclick="CancelEdit">Cancel</button>
+                    }
+                </EditForm>
+            }
         </div>
     </div>
 </div>
+
+@if (selectedDepartment != null)
+{
+    <div class="admin-modal-backdrop" @onclick="CloseDetails">
+        <div class="admin-modal" @onclick:stopPropagation="true">
+            <div class="admin-modal-topbar"></div>
+            <div class="admin-modal-header">
+                <div>
+                    <div class="admin-modal-title">@selectedDepartment.Name</div>
+                    <div class="admin-modal-subtitle">Department #@selectedDepartment.Id</div>
+                </div>
+                <button class="admin-modal-close" @onclick="CloseDetails">&times;</button>
+            </div>
+            <div class="admin-modal-body">
+                <div class="admin-detail-grid">
+                    <div class="admin-detail-item">
+                        <label>Location</label>
+                        <div class="value">@selectedDepartment.Location</div>
+                    </div>
+                    <div class="admin-detail-item">
+                        <label>Head Employee</label>
+                        <div class="value">@(selectedDepartment.HeadEmployeeName ?? "—")</div>
+                    </div>
+                </div>
+            </div>
+            <div class="admin-modal-footer">
+                <button class="admin-btn admin-btn-edit" @onclick="() => { EditDepartment(selectedDepartment); CloseDetails(); }">Edit</button>
+                <button class="admin-btn admin-btn-cancel" @onclick="CloseDetails">Close</button>
+            </div>
+        </div>
+    </div>
+}
 
 @code {
     private List<DepartmentDto>? departments;
     private List<EmployeeDto>? employees;
     private DepartmentDto formModel = new();
+    private DepartmentDto? selectedDepartment;
     private int? editingId;
+    private string activeTab = "list";
     private string? errorMessage;
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerOptions.Web)
@@ -132,6 +172,8 @@
         get => formModel.HeadEmployeeId?.ToString() ?? string.Empty;
         set => formModel.HeadEmployeeId = string.IsNullOrEmpty(value) ? null : int.Parse(value);
     }
+
+    private void SwitchTab(string tab) => activeTab = tab;
 
     // Not OnInitializedAsync — this component's first render happens during Blazor's static
     // SSR pass, before the interactive circuit (and its JS interop) exists. The auth token
@@ -203,6 +245,10 @@
 
     private record ApiErrorResponse(string? Message);
 
+    private void ShowDetails(DepartmentDto department) => selectedDepartment = department;
+
+    private void CloseDetails() => selectedDepartment = null;
+
     private void EditDepartment(DepartmentDto department)
     {
         editingId = department.Id;
@@ -213,12 +259,14 @@
             Location = department.Location,
             HeadEmployeeId = department.HeadEmployeeId
         };
+        activeTab = "form";
     }
 
     private void CancelEdit()
     {
         editingId = null;
         formModel = new DepartmentDto();
+        activeTab = "list";
     }
 
     private async Task SaveDepartment()
@@ -233,7 +281,7 @@
                 var response = await client.PostAsJsonAsync("api/department", formModel, JsonOptions);
                 if (!response.IsSuccessStatusCode)
                 {
-                    errorMessage = $"Create failed: {response.StatusCode}";
+                    errorMessage = await ExtractErrorMessageAsync(response, "Create failed");
                     return;
                 }
             }
@@ -242,13 +290,14 @@
                 var response = await client.PutAsJsonAsync($"api/department/{editingId}", formModel, JsonOptions);
                 if (!response.IsSuccessStatusCode)
                 {
-                    errorMessage = $"Update failed: {response.StatusCode}";
+                    errorMessage = await ExtractErrorMessageAsync(response, "Update failed");
                     return;
                 }
             }
 
             formModel = new DepartmentDto();
             editingId = null;
+            activeTab = "list";
             await LoadDepartments();
         }
         catch (Exception ex)
