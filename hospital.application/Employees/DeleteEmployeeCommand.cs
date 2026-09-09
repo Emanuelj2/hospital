@@ -1,6 +1,7 @@
 using hospital.application.Exceptions;
 using hospital.application.Interfaces;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace hospital.application.Employees
 {
@@ -23,7 +24,18 @@ namespace hospital.application.Employees
                 throw new NotFoundException($"Employee with ID {request.Id} not found.");
             }
 
-            await employeeRepository.DeleteAsync(request.Id);
+            try
+            {
+                await employeeRepository.DeleteAsync(request.Id);
+            }
+            // DbUpdateException: the database rejects the DELETE outright (a real FK violation) —
+            // e.g. this employee is still a Department's Head, or has appointments/prescriptions/
+            // lab results referencing them. InvalidOperationException: EF's change tracker catches
+            // an equivalent conflict client-side first. Either way, something still points at them.
+            catch (Exception ex) when (ex is DbUpdateException or InvalidOperationException)
+            {
+                throw new ValidationException("Cannot delete this employee while they are still referenced elsewhere (e.g. as a department head, or on appointments/prescriptions/lab results). Reassign those first.");
+            }
         }
     }
 }

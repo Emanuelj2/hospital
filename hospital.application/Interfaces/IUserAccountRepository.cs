@@ -10,5 +10,6 @@ namespace hospital.application.Interfaces
         Task<UserAccount?> GetByEmailAsync(string email);
         Task<UserAccount?> GetByIdAsync(int id);
         Task AddAsync(UserAccount userAccount);
+        Task UpdateAsync(UserAccount userAccount);
     }
 }

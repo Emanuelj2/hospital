@@ -114,6 +114,27 @@ namespace hospital.api.Controllers
             }
         }
 
+        // Changes the role on the employee's existing login (e.g. Employee -> Admin).
+        // Separate from Update because role lives on the linked UserAccount, not the Employee
+        // record, and granting/revoking access deserves its own explicit action.
+        [HttpPut("{id}/role")]
+        public async Task<IActionResult> UpdateRole(int id, UpdateRoleDto request)
+        {
+            try
+            {
+                await mediator.Send(new UpdateEmployeeRoleCommand(id, request.Role));
+                return NoContent();
+            }
+            catch (NotFoundException)
+            {
+                return NotFound();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
+        }
+
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
@@ -125,6 +146,10 @@ namespace hospital.api.Controllers
             catch (NotFoundException)
             {
                 return NotFound();
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
             }
         }
     }
