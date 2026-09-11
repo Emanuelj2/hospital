@@ -9,7 +9,7 @@
     align-items: center;
     gap: 0.4rem;
     font-size: 0.85rem;
-    color: #4f8fae;
+    color: var(--teal);
     text-decoration: none;
     font-weight: 600;
     margin-bottom: 1rem;
@@ -20,30 +20,19 @@
     }
 
 .admin-card {
-    background: white;
-    border-radius: 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: var(--radius-md);
     padding: 1.75rem;
-    box-shadow: 0 10px 30px rgba(30, 41, 59, 0.08);
-    position: relative;
-    overflow: hidden;
+    box-shadow: var(--shadow-card);
     margin-bottom: 1.5rem;
 }
 
-    .admin-card::before {
-        content: "";
-        position: absolute;
-        top: 0;
-        left: 0;
-        right: 0;
-        height: 4px;
-        background: linear-gradient(90deg, #4fae8f, #4f8fae);
-    }
-
 .admin-card-heading {
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: var(--font-display);
     font-size: 1.2rem;
-    font-weight: 700;
-    color: #1f2d3d;
+    font-weight: 600;
+    color: var(--ink);
     margin-bottom: 1.25rem;
 }
 
@@ -52,7 +41,7 @@
     display: flex;
     gap: 1.5rem;
     margin-bottom: 1.5rem;
-    border-bottom: 1px solid #e2e8f0;
+    border-bottom: 1px solid var(--line);
 }
 
 .admin-tab {
@@ -61,19 +50,19 @@
     padding: 0.6rem 0.1rem;
     font-size: 0.9rem;
     font-weight: 600;
-    color: #6b7c93;
+    color: var(--muted);
     cursor: pointer;
     border-bottom: 2px solid transparent;
     margin-bottom: -1px;
 }
 
     .admin-tab:hover {
-        color: #33445a;
+        color: var(--ink-soft);
     }
 
     .admin-tab.active {
-        color: #1f2d3d;
-        border-bottom-color: #4f8fae;
+        color: var(--ink);
+        border-bottom-color: var(--teal);
     }
 
 /* Table */
@@ -88,21 +77,22 @@
 
     .admin-table th {
         text-align: left;
-        font-size: 0.75rem;
+        font-family: var(--font-mono);
+        font-size: 0.72rem;
         text-transform: uppercase;
         letter-spacing: 0.06em;
-        color: #6b7c93;
-        font-weight: 700;
+        color: var(--muted);
+        font-weight: 500;
         padding: 0.6rem 0.9rem;
-        border-bottom: 2px solid #eef3f2;
+        border-bottom: 2px solid var(--paper);
         white-space: nowrap;
     }
 
     .admin-table td {
         padding: 0.8rem 0.9rem;
         font-size: 0.9rem;
-        color: #1f2d3d;
-        border-bottom: 1px solid #eef3f2;
+        color: var(--ink);
+        border-bottom: 1px solid var(--paper);
     }
 
     .admin-table tbody tr:last-child td {
@@ -114,7 +104,7 @@
     }
 
     .admin-table tbody tr:hover {
-        background: #f7fafc;
+        background: var(--paper);
     }
 
     .admin-table td:last-child {
@@ -125,18 +115,18 @@
 .admin-empty {
     padding: 1.5rem 0;
     text-align: center;
-    color: #6b7c93;
+    color: var(--muted);
     font-size: 0.9rem;
 }
 
 .admin-muted {
-    color: #9aa7ba;
+    color: var(--muted);
 }
 
 /* Buttons */
 .admin-btn {
     border: none;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     padding: 0.4rem 0.85rem;
     font-size: 0.8rem;
     font-weight: 600;
@@ -145,7 +135,7 @@
 }
 
 .admin-btn-primary {
-    background: linear-gradient(90deg, #4fae8f, #4f8fae);
+    background: var(--ink);
     color: white;
     padding: 0.65rem 1.3rem;
     font-size: 0.9rem;
@@ -153,21 +143,21 @@
 }
 
     .admin-btn-primary:hover {
-        opacity: 0.92;
+        opacity: 0.9;
     }
 
 .admin-btn-edit {
-    background: #eef3f2;
-    color: #33445a;
+    background: var(--paper);
+    color: var(--ink-soft);
 }
 
     .admin-btn-edit:hover {
-        background: #e2e8f0;
+        background: var(--line);
     }
 
 .admin-btn-delete {
-    background: #fef2f2;
-    color: #b91c1c;
+    background: var(--danger-bg);
+    color: var(--danger);
 }
 
     .admin-btn-delete:hover {
@@ -175,9 +165,9 @@
     }
 
 .admin-btn-cancel {
-    background: white;
-    border: 1px solid #e2e8f0;
-    color: #6b7c93;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    color: var(--muted);
     padding: 0.65rem 1.3rem;
     font-size: 0.9rem;
 }
@@ -192,9 +182,12 @@
 
 .admin-field label {
     display: block;
-    font-size: 0.82rem;
-    font-weight: 600;
-    color: #33445a;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    font-weight: 500;
+    color: var(--muted);
     margin-bottom: 0.35rem;
 }
 
@@ -203,12 +196,12 @@
 .admin-field select,
 .admin-field input {
     width: 100%;
-    background: #f4f7f9;
-    border-radius: 10px;
-    border: 1px solid #e2e8f0;
+    background: var(--surface);
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--line);
     padding: 0.6rem 0.8rem;
     font-size: 0.9rem;
-    color: #1f2d3d;
+    color: var(--ink);
     transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
@@ -217,26 +210,26 @@
     .admin-field select:focus,
     .admin-field input:focus {
         outline: none;
-        border-color: #4f8fae;
-        box-shadow: 0 0 0 3px rgba(79, 143, 174, 0.15);
-        background: #ffffff;
+        border-color: var(--teal);
+        box-shadow: 0 0 0 3px var(--teal-tint);
     }
 
 .admin-badge {
     display: inline-block;
     padding: 0.2rem 0.6rem;
     border-radius: 999px;
+    border: 1px solid var(--line);
     font-size: 0.75rem;
     font-weight: 600;
-    background: #eef3f2;
-    color: #33445a;
+    background: var(--surface);
+    color: var(--ink-soft);
 }
 
 /* Detail modal */
 .admin-modal-backdrop {
     position: fixed;
     inset: 0;
-    background: rgba(31, 45, 61, 0.45);
+    background: rgba(21, 34, 56, 0.45);
     display: flex;
     align-items: flex-start;
     justify-content: center;
@@ -246,17 +239,16 @@
 }
 
 .admin-modal {
-    background: white;
-    border-radius: 14px;
+    background: var(--surface);
+    border-radius: var(--radius-lg);
     max-width: 700px;
     width: 100%;
-    box-shadow: 0 20px 60px rgba(30, 41, 59, 0.25);
+    box-shadow: var(--shadow-modal);
     overflow: hidden;
 }
 
 .admin-modal-topbar {
-    height: 4px;
-    background: linear-gradient(90deg, #4fae8f, #4f8fae);
+    height: 0;
 }
 
 .admin-modal-header {
@@ -264,19 +256,19 @@
     align-items: center;
     justify-content: space-between;
     padding: 1.25rem 1.5rem;
-    border-bottom: 1px solid #eef3f2;
+    border-bottom: 1px solid var(--paper);
 }
 
 .admin-modal-title {
-    font-family: Georgia, "Times New Roman", serif;
+    font-family: var(--font-display);
     font-size: 1.2rem;
-    font-weight: 700;
-    color: #1f2d3d;
+    font-weight: 600;
+    color: var(--ink);
 }
 
 .admin-modal-subtitle {
     font-size: 0.82rem;
-    color: #6b7c93;
+    color: var(--muted);
     margin-top: 0.15rem;
 }
 
@@ -285,13 +277,13 @@
     border: none;
     font-size: 1.4rem;
     line-height: 1;
-    color: #9aa7ba;
+    color: var(--muted);
     cursor: pointer;
     padding: 0.25rem;
 }
 
     .admin-modal-close:hover {
-        color: #33445a;
+        color: var(--ink-soft);
     }
 
 .admin-modal-body {
@@ -302,20 +294,21 @@
 
 .admin-modal-footer {
     padding: 1rem 1.5rem;
-    border-top: 1px solid #eef3f2;
+    border-top: 1px solid var(--paper);
     display: flex;
     justify-content: flex-end;
 }
 
 .admin-detail-section-title {
-    font-size: 0.75rem;
-    font-weight: 700;
-    color: #4f8fae;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--teal);
     text-transform: uppercase;
     letter-spacing: 0.06em;
     margin: 1.5rem 0 0.9rem 0;
     padding-top: 1.25rem;
-    border-top: 1px solid #eef3f2;
+    border-top: 1px solid var(--paper);
 }
 
     .admin-detail-section-title:first-child {
@@ -332,16 +325,17 @@
 
 .admin-detail-item label {
     display: block;
-    font-size: 0.72rem;
+    font-family: var(--font-mono);
+    font-size: 0.68rem;
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    color: #9aa7ba;
-    font-weight: 700;
+    color: var(--muted);
+    font-weight: 500;
     margin-bottom: 0.3rem;
 }
 
 .admin-detail-item .value {
     font-size: 0.92rem;
-    color: #1f2d3d;
+    color: var(--ink);
     font-weight: 600;
 }

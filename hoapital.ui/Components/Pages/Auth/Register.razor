@@ -12,11 +12,8 @@
 </HeadContent>
 
 <div class="auth-page">
-    <div class="auth-blob auth-blob-1"></div>
-    <div class="auth-blob auth-blob-2"></div>
-    <div class="auth-blob auth-blob-3"></div>
-
-    <div class="auth-card">
+    <div class="auth-shell">
+    <div class="auth-panel">
         <div class="auth-brand">
             <div class="auth-brand-icon">+</div>
             <div>
@@ -84,7 +81,8 @@
         </div>
     </div>
 
-    <div class="auth-copyright">© @DateTime.Now.Year MediHealth. All rights reserved.</div>
+    <AuthSidePanel Quote="Your appointments, prescriptions, and results — one account away." />
+    </div>
 </div>
 
 @code {

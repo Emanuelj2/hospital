@@ -1,0 +1,42 @@
+/* Design tokens for the "Clinical Split" theme — shared across auth, dashboard and admin CSS. */
+:root {
+    --ink: #152238;
+    --ink-soft: #33445a;
+    --teal: #1f6f63;
+    --teal-tint: #e7f1ee;
+    --paper: #f7f8f7;
+    --surface: #ffffff;
+    --line: #dfe3e0;
+    --muted: #5c6a66;
+
+    --danger: #b91c1c;
+    --danger-bg: #fef2f2;
+    --danger-border: #fecaca;
+    --success: #15803d;
+    --success-bg: #f0fdf4;
+    --success-border: #bbf7d0;
+
+    --font-display: "Source Serif 4", Georgia, "Times New Roman", serif;
+    --font-body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+
+    --radius-sm: 6px;
+    --radius-md: 8px;
+    --radius-lg: 10px;
+
+    --shadow-card: 0 1px 2px rgba(21, 34, 56, 0.05);
+    --shadow-modal: 0 12px 32px rgba(21, 34, 56, 0.16);
+}
+
+html, body {
+    font-family: var(--font-body);
+    color: var(--ink);
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+}
+
+a {
+    color: var(--teal);
+}
