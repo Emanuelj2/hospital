@@ -1,0 +1,18 @@
+<div class="auth-side">
+    <p class="auth-side-quote">@Quote</p>
+
+    <svg class="auth-trace" viewBox="0 0 400 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+        <path d="M0 40 H120 L136 40 L146 12 L158 56 L168 28 L178 40 H260 L272 40 L282 20 L292 48 L302 40 H400"
+              stroke="#4fae8f" stroke-width="1.5" stroke-linejoin="round" stroke-linecap="round" />
+    </svg>
+
+    <div class="auth-side-foot">
+        <span>&copy; @DateTime.Now.Year MediHealth</span>
+        <span>Secure staff access</span>
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public string Quote { get; set; } = "Patient records, schedules, and care-team messages — one secure portal.";
+}
