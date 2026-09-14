@@ -27,6 +27,9 @@ namespace hospital.infrastructure.Repositories
         public async Task<Patient?> GetByIdAsync(int patientId) =>
             await hospitalDb.Patients.FindAsync(patientId);
 
+        public async Task<List<Patient>> GetByAssignedDoctorIdAsync(int doctorId) =>
+            await hospitalDb.Patients.Where(p => p.AssignedDoctorId == doctorId).ToListAsync();
+
         public async Task AddAsync(Patient patient)
         {
             hospitalDb.Patients.Add(patient);

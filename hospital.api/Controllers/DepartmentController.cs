@@ -7,9 +7,12 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace hospital.api.Controllers
 {
+    // Reads (department names/locations) are available to any staff role, since doctors and
+    // employees legitimately need them to display on patient/employee records. Writes stay
+    // Admin-only.
     [Route("api/[controller]")]
     [ApiController]
-    [Authorize(Roles = "Admin")]
+    [Authorize]
     public class DepartmentController : ControllerBase
     {
         private readonly IMediator mediator;
@@ -20,6 +23,7 @@ namespace hospital.api.Controllers
         }
 
         [HttpGet]
+        [Authorize(Roles = "Employee,Doctor,Admin")]
         public async Task<ActionResult<List<DepartmentDto>>> GetAll()
         {
             var departments = await mediator.Send(new GetAllDepartmentsQuery());
@@ -27,6 +31,7 @@ namespace hospital.api.Controllers
         }
 
         [HttpGet("{id}")]
+        [Authorize(Roles = "Employee,Doctor,Admin")]
         public async Task<ActionResult<DepartmentDto>> GetById(int id)
         {
             try
@@ -41,6 +46,7 @@ namespace hospital.api.Controllers
         }
 
         [HttpPost]
+        [Authorize(Roles = "Admin")]
         public async Task<ActionResult<DepartmentDto>> Create(DepartmentDto departmentDto)
         {
             var created = await mediator.Send(new CreateDepartmentCommand(departmentDto));
@@ -48,6 +54,7 @@ namespace hospital.api.Controllers
         }
 
         [HttpPut("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Update(int id, DepartmentDto departmentDto)
         {
             try
@@ -62,6 +69,7 @@ namespace hospital.api.Controllers
         }
 
         [HttpDelete("{id}")]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int id)
         {
             try

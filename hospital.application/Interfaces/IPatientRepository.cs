@@ -10,6 +10,7 @@ namespace hospital.application.Interfaces
     {
         Task<List<Patient>> GetAllAsync();
         Task<Patient?> GetByIdAsync(int patientId);
+        Task<List<Patient>> GetByAssignedDoctorIdAsync(int doctorId);
         Task AddAsync(Patient patient);
         Task UpdateAsync(Patient patient);
         Task DeleteAsync(int patientId);

@@ -4,6 +4,7 @@
 @using System.Text.Json
 @using System.Text.Json.Serialization
 @using hospital.application.DTOs
+@using hospital.domain.Enums
 @using hoapital.ui.Auth
 @using Microsoft.AspNetCore.Authorization
 @inject IHttpClientFactory ClientFactory
@@ -49,6 +50,7 @@
                                     <th>Email</th>
                                     <th>Medical Record #</th>
                                     <th>Status</th>
+                                    <th>Assigned Doctor</th>
                                     <th></th>
                                 </tr>
                             </thead>
@@ -60,6 +62,7 @@
                                         <td>@patient.Email</td>
                                         <td>@patient.MedicalRecordNumber</td>
                                         <td><span class="admin-badge">@patient.Status</span></td>
+                                        <td>@DoctorName(patient.AssignedDoctorId)</td>
                                         <td>
                                             <button class="admin-btn admin-btn-edit" @onclick="() => EditPatient(patient)" @onclick:stopPropagation="true">Edit</button>
                                             <button class="admin-btn admin-btn-delete" @onclick="() => DeletePatient(patient.Id)" @onclick:stopPropagation="true">Delete</button>
@@ -107,7 +110,30 @@
                             <label>Medical Record Number</label>
                             <InputText class="form-control" @bind-Value="formModel.MedicalRecordNumber" />
                         </div>
+
+                        <div class="admin-field">
+                            <label>Room Number@(editingId == null ? " *" : "")</label>
+                            <InputText class="form-control" @bind-Value="roomNumberValue" />
+                        </div>
+
+                        <div class="admin-field">
+                            <label>Assigned Doctor</label>
+                            <select class="form-select" @bind="assignedDoctorIdValue">
+                                <option value="">(none)</option>
+                                @if (employees != null)
+                                {
+                                    @foreach (var doctor in employees.Where(e => e.Job == JobTitle.Doctor))
+                                    {
+                                        <option value="@doctor.Id">@doctor.FirstName @doctor.LastName</option>
+                                    }
+                                }
+                            </select>
+                        </div>
                     </div>
+                    @if (editingId == null)
+                    {
+                        <p class="admin-muted" style="margin-top:-0.75rem;">* Required to create a patient.</p>
+                    }
 
                     <button type="submit" class="admin-btn admin-btn-primary">Save</button>
                     @if (editingId != null)
@@ -192,6 +218,18 @@
     };
 
     private void SwitchTab(string tab) => activeTab = tab;
+
+    private string roomNumberValue
+    {
+        get => formModel.RoomNumber ?? string.Empty;
+        set => formModel.RoomNumber = string.IsNullOrWhiteSpace(value) ? null : value;
+    }
+
+    private string assignedDoctorIdValue
+    {
+        get => formModel.AssignedDoctorId?.ToString() ?? string.Empty;
+        set => formModel.AssignedDoctorId = string.IsNullOrEmpty(value) ? null : int.Parse(value);
+    }
 
     // Not OnInitializedAsync: this component's first render happens during Blazor's static
     // SSR pass, before the interactive circuit (and its JS interop) exists. The auth token
@@ -312,7 +350,9 @@
             PhoneNumber = patient.PhoneNumber,
             MedicalRecordNumber = patient.MedicalRecordNumber,
             DateOfBirth = patient.DateOfBirth,
-            Status = patient.Status
+            Status = patient.Status,
+            RoomNumber = patient.RoomNumber,
+            AssignedDoctorId = patient.AssignedDoctorId
         };
         activeTab = "form";
     }

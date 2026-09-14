@@ -4,6 +4,7 @@ using hospital.application.Patients;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace hospital.api.Controllers
 {
@@ -33,6 +34,18 @@ namespace hospital.api.Controllers
         }
 
 
+        // The doctor's own patient list. The doctor id comes from the caller's JWT (via their
+        // linked Employee record), never from the request — a doctor can't ask for someone
+        // else's patients by passing a different id.
+        [HttpGet("assigned-to-me")]
+        [Authorize(Roles = "Doctor")]
+        public async Task<ActionResult<List<PatientDto>>> GetAssignedToMe()
+        {
+            var userAccountId = int.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)!);
+            var patients = await mediator.Send(new GetMyAssignedPatientsQuery(userAccountId));
+            return Ok(patients);
+        }
+
         [HttpGet("{id}")]
         public async Task<ActionResult<PatientDto>> GetById(int id)
         {
@@ -51,8 +64,15 @@ namespace hospital.api.Controllers
         [HttpPost]
         public async Task<ActionResult<PatientDto>> Create(PatientDto patientDto)
         {
-            var createdPatient = await mediator.Send(new CreatePatientCommand(patientDto));
-            return CreatedAtAction(nameof(GetById), new { id = createdPatient.Id }, createdPatient);
+            try
+            {
+                var createdPatient = await mediator.Send(new CreatePatientCommand(patientDto));
+                return CreatedAtAction(nameof(GetById), new { id = createdPatient.Id }, createdPatient);
+            }
+            catch (ValidationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
 
