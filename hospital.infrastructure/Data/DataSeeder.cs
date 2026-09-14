@@ -32,7 +32,7 @@ namespace hospital.infrastructure.Data
             {
                 Email = "doctor@medihealth.local",
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword("Doctor123!"),
-                Role = AccountRole.Employee,
+                Role = AccountRole.Doctor,
                 IsActive = true
             };
             var patientAccount = new UserAccount
@@ -115,6 +115,7 @@ namespace hospital.infrastructure.Data
                 AdmissionDate = DateTime.UtcNow.AddDays(-2),
                 DischargeDate = null,
                 Status = PatientStatus.Admitted,
+                RoomNumber = "204-A",
                 AssignedDoctorId = doctor.Id,
                 DepartmentId = cardiology.Id,
                 BloodType = BloodType.OPositive,
@@ -140,6 +141,7 @@ namespace hospital.infrastructure.Data
                 AdmissionDate = DateTime.UtcNow.AddDays(-10),
                 DischargeDate = DateTime.UtcNow.AddDays(-1),
                 Status = PatientStatus.Discharged,
+                RoomNumber = "112-B",
                 AssignedDoctorId = doctor.Id,
                 DepartmentId = emergency.Id,
                 BloodType = BloodType.ANegative,

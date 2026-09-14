@@ -13,6 +13,7 @@ namespace hospital.application.Interfaces
         Task<List<Employee>> GetByLastNameAsync(string lastName);
         Task<Employee?> GetByEmailAsync(string email);
         Task<Employee?> GetByPhoneNumberAsync(string phoneNumber);
+        Task<Employee?> GetByUserAccountIdAsync(int userAccountId);
         Task AddAsync(Employee employee);
         Task UpdateAsync(Employee employee);
         Task DeleteAsync(int employeeId);

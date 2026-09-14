@@ -1,0 +1,335 @@
+@page "/doctor/patients/{Id:int}"
+@attribute [Authorize(Roles = "Doctor")]
+@using System.Net.Http.Headers
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using hospital.application.DTOs
+@using hospital.domain.Enums
+@using hoapital.ui.Auth
+@using Microsoft.AspNetCore.Authorization
+@inject IHttpClientFactory ClientFactory
+@inject AuthTokenProvider AuthTokenProvider
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="dash-page">
+    <PageHeader />
+
+    <div class="admin-body">
+        <a class="admin-breadcrumb" href="/doctor/my-patients">&larr; Back to My Patients</a>
+
+        @if (errorMessage != null)
+        {
+            <div class="auth-alert">@errorMessage</div>
+        }
+
+        @if (successMessage != null)
+        {
+            <div class="auth-alert auth-alert-success">@successMessage</div>
+        }
+
+        @if (patient == null)
+        {
+            <div class="admin-card">
+                <div class="admin-empty">@(errorMessage == null ? "Loading..." : "Patient not found.")</div>
+            </div>
+        }
+        else
+        {
+            <div class="dash-heading">@patient.FirstName @patient.LastName</div>
+            <div class="dash-subtitle">MRN @patient.MedicalRecordNumber</div>
+
+            <div class="admin-card">
+                <div class="admin-card-heading">Patient Record</div>
+
+                <EditForm Model="patient" OnValidSubmit="SavePatient" FormName="editPatientForm">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary />
+
+                    <div class="admin-detail-section-title">Contact</div>
+                    <div class="admin-form-grid">
+                        <div class="admin-field">
+                            <label>First Name</label>
+                            <InputText class="form-control" @bind-Value="patient.FirstName" />
+                        </div>
+                        <div class="admin-field">
+                            <label>Middle Name</label>
+                            <InputText class="form-control" @bind-Value="patient.MiddleName" />
+                        </div>
+                        <div class="admin-field">
+                            <label>Last Name</label>
+                            <InputText class="form-control" @bind-Value="patient.LastName" />
+                        </div>
+                        <div class="admin-field">
+                            <label>Gender</label>
+                            <InputText class="form-control" @bind-Value="patient.Gender" />
+                        </div>
+                        <div class="admin-field">
+                            <label>Email</label>
+                            <InputText class="form-control" @bind-Value="patient.Email" />
+                        </div>
+                        <div class="admin-field">
+                            <label>Phone Number</label>
+                            <InputText class="form-control" @bind-Value="patient.PhoneNumber" />
+                        </div>
+                        <div class="admin-field">
+                            <label>Date of Birth</label>
+                            <InputDate class="form-control" @bind-Value="patient.DateOfBirth" />
+                        </div>
+                    </div>
+
+                    <div class="admin-detail-section-title">Address</div>
+                    <div class="admin-form-grid">
+                        <div class="admin-field">
+                            <label>Address</label>
+                            <InputText class="form-control" @bind-Value="patient.Address" />
+                        </div>
+                        <div class="admin-field">
+                            <label>City</label>
+                            <InputText class="form-control" @bind-Value="patient.City" />
+                        </div>
+                        <div class="admin-field">
+                            <label>State</label>
+                            <InputText class="form-control" @bind-Value="patient.State" />
+                        </div>
+                        <div class="admin-field">
+                            <label>Zip Code</label>
+                            <InputText class="form-control" @bind-Value="patient.ZipCode" />
+                        </div>
+                        <div class="admin-field">
+                            <label>Country</label>
+                            <InputText class="form-control" @bind-Value="patient.Country" />
+                        </div>
+                    </div>
+
+                    <div class="admin-detail-section-title">Admission</div>
+                    <div class="admin-form-grid">
+                        <div class="admin-field">
+                            <label>Status</label>
+                            <InputSelect class="form-select" @bind-Value="patient.Status">
+                                @foreach (var status in Enum.GetValues<PatientStatus>())
+                                {
+                                    <option value="@status">@status</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="admin-field">
+                            <label>Admission Date</label>
+                            <InputDate class="form-control" @bind-Value="patient.AdmissionDate" />
+                        </div>
+                        <div class="admin-field">
+                            <label>Discharge Date</label>
+                            <InputDate class="form-control" @bind-Value="dischargeDateValue" />
+                        </div>
+                        <div class="admin-field">
+                            <label>Room Number</label>
+                            <InputText class="form-control" @bind-Value="roomNumberValue" />
+                        </div>
+                        <div class="admin-field">
+                            <label>Department</label>
+                            <select class="form-select" @bind="departmentIdValue">
+                                <option value="">(none)</option>
+                                @if (departments != null)
+                                {
+                                    @foreach (var department in departments)
+                                    {
+                                        <option value="@department.Id">@department.Name</option>
+                                    }
+                                }
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="admin-detail-section-title">Medical</div>
+                    <div class="admin-form-grid">
+                        <div class="admin-field">
+                            <label>Blood Type</label>
+                            <InputSelect class="form-select" @bind-Value="patient.BloodType">
+                                @foreach (var bloodType in Enum.GetValues<BloodType>())
+                                {
+                                    <option value="@bloodType">@bloodType</option>
+                                }
+                            </InputSelect>
+                        </div>
+                        <div class="admin-field">
+                            <label>Allergies (comma-separated)</label>
+                            <InputText class="form-control" @bind-Value="allergiesValue" />
+                        </div>
+                        <div class="admin-field">
+                            <label>Primary Diagnosis</label>
+                            <InputText class="form-control" @bind-Value="primaryDiagnosisValue" />
+                        </div>
+                    </div>
+
+                    <div class="admin-detail-section-title">Insurance</div>
+                    <div class="admin-form-grid">
+                        <div class="admin-field">
+                            <label>Provider</label>
+                            <InputText class="form-control" @bind-Value="patient.InsuranceProvider" />
+                        </div>
+                        <div class="admin-field">
+                            <label>Policy Number</label>
+                            <InputText class="form-control" @bind-Value="patient.InsurancePolicyNumber" />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="admin-btn admin-btn-primary">Save Changes</button>
+                    <button type="button" class="admin-btn admin-btn-cancel" @onclick="GoBack">Cancel</button>
+                </EditForm>
+            </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private PatientDto? patient;
+    private List<DepartmentDto>? departments;
+    private string? errorMessage;
+    private string? successMessage;
+
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerOptions.Web)
+    {
+        Converters = { new JsonStringEnumConverter() }
+    };
+
+    private DateTime? dischargeDateValue
+    {
+        get => patient?.DischargeDate;
+        set { if (patient != null) patient.DischargeDate = value; }
+    }
+
+    private string roomNumberValue
+    {
+        get => patient?.RoomNumber ?? string.Empty;
+        set { if (patient != null) patient.RoomNumber = string.IsNullOrWhiteSpace(value) ? null : value; }
+    }
+
+    private string primaryDiagnosisValue
+    {
+        get => patient?.PrimaryDiagnosis ?? string.Empty;
+        set { if (patient != null) patient.PrimaryDiagnosis = string.IsNullOrWhiteSpace(value) ? null : value; }
+    }
+
+    private string allergiesValue
+    {
+        get => patient == null ? string.Empty : string.Join(", ", patient.Allergies);
+        set
+        {
+            if (patient == null) return;
+            patient.Allergies = value
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .ToList();
+        }
+    }
+
+    private string departmentIdValue
+    {
+        get => patient?.DepartmentId?.ToString() ?? string.Empty;
+        set { if (patient != null) patient.DepartmentId = string.IsNullOrEmpty(value) ? null : int.Parse(value); }
+    }
+
+    // Not OnInitializedAsync — this component's first render happens during Blazor's static
+    // SSR pass, before the interactive circuit (and its JS interop) exists. The auth token
+    // lives in protected session storage, which needs that interop.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadPatient();
+            await LoadDepartments();
+            StateHasChanged();
+        }
+    }
+
+    private async Task<HttpClient> CreateAuthorizedClientAsync()
+    {
+        var client = ClientFactory.CreateClient("HospitalAPI");
+        var token = await AuthTokenProvider.GetTokenAsync();
+        if (!string.IsNullOrWhiteSpace(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+        return client;
+    }
+
+    private async Task LoadPatient()
+    {
+        var client = await CreateAuthorizedClientAsync();
+        try
+        {
+            var response = await client.GetAsync($"api/patients/{Id}");
+            if (!response.IsSuccessStatusCode)
+            {
+                errorMessage = "This patient could not be found.";
+                return;
+            }
+            patient = await response.Content.ReadFromJsonAsync<PatientDto>(JsonOptions);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load patient: {ex.Message}";
+        }
+    }
+
+    private async Task LoadDepartments()
+    {
+        var client = await CreateAuthorizedClientAsync();
+        try
+        {
+            departments = await client.GetFromJsonAsync<List<DepartmentDto>>("api/department", JsonOptions);
+        }
+        catch (Exception)
+        {
+            // Non-fatal — the department dropdown just falls back to "(none)" plus whatever id is already set.
+        }
+    }
+
+    private static async Task<string> ExtractErrorMessageAsync(HttpResponseMessage response, string fallbackPrefix)
+    {
+        try
+        {
+            var problem = await response.Content.ReadFromJsonAsync<ApiErrorResponse>(JsonOptions);
+            if (!string.IsNullOrWhiteSpace(problem?.Message))
+            {
+                return problem.Message;
+            }
+        }
+        catch (JsonException)
+        {
+            // Not a { "message": "..." } body — fall through to the generic message.
+        }
+
+        return $"{fallbackPrefix}: {response.StatusCode}";
+    }
+
+    private record ApiErrorResponse(string? Message);
+
+    private async Task SavePatient()
+    {
+        if (patient == null) return;
+
+        var client = await CreateAuthorizedClientAsync();
+        errorMessage = null;
+        successMessage = null;
+
+        try
+        {
+            var response = await client.PutAsJsonAsync($"api/patients/{Id}", patient, JsonOptions);
+            if (!response.IsSuccessStatusCode)
+            {
+                errorMessage = await ExtractErrorMessageAsync(response, "Save failed");
+                return;
+            }
+            successMessage = "Changes saved.";
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Save failed: {ex.Message}";
+        }
+    }
+
+    private void GoBack() => Navigation.NavigateTo("/doctor/my-patients");
+}

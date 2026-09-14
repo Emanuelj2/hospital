@@ -37,6 +37,9 @@ namespace hospital.infrastructure.Repositories
         public async Task<Employee?> GetByPhoneNumberAsync(string phoneNumber) =>
             await hospitalDb.Employees.FirstOrDefaultAsync(e => e.PhoneNumber == phoneNumber);
 
+        public async Task<Employee?> GetByUserAccountIdAsync(int userAccountId) =>
+            await hospitalDb.Employees.FirstOrDefaultAsync(e => e.UserAccountId == userAccountId);
+
         public async Task AddAsync(Employee employee)
         {
             hospitalDb.Employees.Add(employee);

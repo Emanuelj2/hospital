@@ -1,0 +1,112 @@
+@page "/doctor/my-patients"
+@attribute [Authorize(Roles = "Doctor")]
+@using System.Net.Http.Headers
+@using System.Text.Json
+@using System.Text.Json.Serialization
+@using hospital.application.DTOs
+@using hoapital.ui.Auth
+@using Microsoft.AspNetCore.Authorization
+@inject IHttpClientFactory ClientFactory
+@inject AuthTokenProvider AuthTokenProvider
+@inject NavigationManager Navigation
+@rendermode InteractiveServer
+
+<div class="dash-page">
+    <PageHeader />
+
+    <div class="admin-body">
+        <a class="admin-breadcrumb" href="/dashboard">&larr; Back to Dashboard</a>
+        <div class="dash-heading">My Patients</div>
+        <div class="dash-subtitle">Patients currently assigned to you. Click one to view and edit their record.</div>
+
+        @if (errorMessage != null)
+        {
+            <div class="auth-alert">@errorMessage</div>
+        }
+
+        <div class="admin-card">
+            @if (patients == null)
+            {
+                <div class="admin-empty">Loading...</div>
+            }
+            else if (patients.Count == 0)
+            {
+                <div class="admin-empty">No patients are currently assigned to you.</div>
+            }
+            else
+            {
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Medical Record #</th>
+                                <th>Status</th>
+                                <th>Room</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var patient in patients)
+                            {
+                                <tr @onclick="() => OpenPatient(patient.Id)">
+                                    <td>@patient.FirstName @patient.LastName</td>
+                                    <td>@patient.MedicalRecordNumber</td>
+                                    <td><span class="admin-badge">@patient.Status</span></td>
+                                    <td>@(patient.RoomNumber ?? "—")</td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@code {
+    private List<PatientDto>? patients;
+    private string? errorMessage;
+
+    private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerOptions.Web)
+    {
+        Converters = { new JsonStringEnumConverter() }
+    };
+
+    // Not OnInitializedAsync — this component's first render happens during Blazor's static
+    // SSR pass, before the interactive circuit (and its JS interop) exists. The auth token
+    // lives in protected session storage, which needs that interop.
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await LoadPatients();
+            StateHasChanged();
+        }
+    }
+
+    private async Task<HttpClient> CreateAuthorizedClientAsync()
+    {
+        var client = ClientFactory.CreateClient("HospitalAPI");
+        var token = await AuthTokenProvider.GetTokenAsync();
+        if (!string.IsNullOrWhiteSpace(token))
+        {
+            client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
+        }
+        return client;
+    }
+
+    private async Task LoadPatients()
+    {
+        var client = await CreateAuthorizedClientAsync();
+        try
+        {
+            patients = await client.GetFromJsonAsync<List<PatientDto>>("api/patients/assigned-to-me", JsonOptions);
+        }
+        catch (Exception ex)
+        {
+            errorMessage = $"Failed to load your patients: {ex.Message}";
+        }
+    }
+
+    private void OpenPatient(int id) => Navigation.NavigateTo($"/doctor/patients/{id}");
+}
